@@ -50,11 +50,14 @@ $(function() {
   $dbh = civicrmConnect();
   $weberp = weberpConnect();
 
+  @$searchText = $_GET["searchText"];
+
   echo "<div style='padding:9px;width:50%;margin:0 auto;'>";
   echo "<form action='' method='POST'>";
+  echo '<input type="hidden" name="FormID" value="' . $_SESSION['FormID'] . '" />';
   echo "<fieldset>"
        . "<legend>Search Customer</legend>"
-       . "Search name:&nbsp;<input name='searchName' placeholder='name...'>"
+       . "Search name:&nbsp;<input type='text' name='searchName' placeholder='name...' value='$searchText'>"
        . "<input type='submit' value='SEARCH' name='search'>"
        . "</fieldset>";
 ?>
@@ -94,6 +97,8 @@ $(function() {
          echo "<div id='confirmation' title'Confirmation'>";
          echo "<p>Contact record successfully inserted to weberp.</p>";
          echo "</div>";
+
+         header("Location: CustomerReceipt.php?civiID=IIAP$contactId");
        }
 
        else{
