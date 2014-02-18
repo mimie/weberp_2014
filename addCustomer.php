@@ -1,3 +1,6 @@
+<?php
+ include('includes/header.inc');
+?>
 <html>
 <head>
   <title>Add Customer</title>
