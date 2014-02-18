@@ -44,8 +44,7 @@ $(function() {
 
   $dbh = civicrmConnect();
   $weberp = weberpConnect();
-  $menu = logoutDiv($dbh);
-  echo $menu;
+
   echo "<div style='padding:9px;width:50%;margin:0 auto;'>";
   echo "<form action='' method='POST'>";
   echo "<fieldset>"
