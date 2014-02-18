@@ -1,4 +1,6 @@
 <?php
+ include('includes/session.inc');
+ $title="Add Customer";
  include('includes/header.inc');
 ?>
 <html>
@@ -131,3 +133,10 @@ $(function() {
   });                                                                                          
 </script> 
 </html>
+
+
+<?php
+
+include('includes/footer.inc');
+
+?>

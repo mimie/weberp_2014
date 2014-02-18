@@ -66,10 +66,10 @@ if (!isset($_GET['Delete']) AND isset($_SESSION['ReceiptBatch'])){
 		$_SESSION['ReceiptBatch']->CurrDecimalPlaces=$myrow['decimalplaces'];
 		unset($result);
 	} elseif (DB_num_rows($result)==0 AND !$BankAccountEmpty){
-		prnMsg( _('The bank account number') . ' ' . $_POST['BankAccount'] . ' ' . _('is not set up as a bank account'),'error');
+		/*prnMsg( _('The bank account number') . ' ' . $_POST['BankAccount'] . ' ' . _('is not set up as a bank account'),'error');
 		echo '<a href="'.$rootpath.'/CustomerReceipt.php?NewReceipt=Yes&Type=Customer">Return</a>';
 		include ('includes/footer.inc');
-		exit;
+		exit;*/
 	}
 
 	if (!Is_Date($_POST['DateBanked'])){
@@ -688,6 +688,8 @@ if (isset($_POST['Search'])){
 
 if (isset($_POST['Select'])){
 	$Select = $_POST['Select'];
+}elseif(isset($_GET['civiID'])){
+	$Select=$_GET['civiID'];
 }
 
 if (isset($Select)) {
@@ -843,7 +845,7 @@ if (DB_num_rows($AccountsResults)==0){
 	include('includes/footer.inc');
 	 exit;
 } else {
-	echo '<option value=""></option>';
+	//echo '<option value=""></option>';
 	while ($myrow=DB_fetch_array($AccountsResults)){
 		/*list the bank account names */
 		if ($_SESSION['ReceiptBatch']->Account==$myrow['accountcode']){
