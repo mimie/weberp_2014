@@ -684,6 +684,9 @@ if (isset($_POST['Search'])){
 		}
 
 	} //one of keywords or custcode was more than a zero length string
+
+   $searchText = $_POST["Keywords"];
+   echo "<input type='text' name='searchText' value='$searchText'>";
 } //end of if search
 
 if (isset($_POST['Select'])){
@@ -1342,6 +1345,9 @@ if (((isset($_SESSION['CustomerRecord'])
 			<input tabindex="11" type="submit" name="Search" value="' . _('Search Now') . '" />
 			<br/>
 			<br/>
+                        <input tabindex="13" type="submit" name="Add" value="' . _('Add Customer') . '" />
+                        <br/>
+                        <br/>
 			<input tabindex="12" type="submit" name="GLEntry" value="' . _('Enter A GL Receipt') . '" />
 			<br />
 		</div>';
