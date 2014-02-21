@@ -12,7 +12,7 @@ if (!$db) {
           die('Could not connect: ' . mysql_error());
  }
 
-$narrative="Payment of ".$custName." for ".$eventName;
+$narrative="Accounts Receivable of ".$custName." for ".$eventName;
 
 //***************GET LAST TYPENO
 mysql_select_db("iiap_weberp2014", $db);
