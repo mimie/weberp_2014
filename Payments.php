@@ -705,6 +705,7 @@ if (isset($_POST['CommitBatch'])){
 		    prnMsg( _('The Cheque/Voucher number has already been used') . ' - ' . _('This GL analysis item could not be added'),'error');
 #	print_r($ChequeNoSQL);
 }*/ else {
+	if($_POST["formYou"]==$_SESSION['formMe']){
 	$myrow = DB_fetch_array($Result);
 	$_SESSION['PaymentDetail' . $identifier]->add_to_glanalysis(filter_number_format($_POST['GLAmount']),
 			$_POST['GLNarrative'],
@@ -713,6 +714,8 @@ if (isset($_POST['CommitBatch'])){
 			$_POST['Tag'],
 			$_POST['Cheque']);
 	unset($_POST['GLManualCode']);
+	}
+	
 }
 } else if (DB_num_rows($ChequeNoResult)!=0 AND $_POST['Cheque']!=''){
 	prnMsg( _('The cheque number has already been used') . ' - ' . _('This GL analysis item could not be added'),'error');
@@ -729,7 +732,7 @@ if (isset($_POST['CommitBatch'])){
 			$_POST['Tag'],
 			$_POST['Cheque']);
 }
-
+$_SESSION["formMe"]=microtime();  //md5(rand(0,1000000));  //HereSession
 /*Make sure the same receipt is not double processed by a page refresh */
 $_POST['Cancel'] = 1;
 }
@@ -783,7 +786,10 @@ if (isset($_POST['BankAccount']) AND $_POST['BankAccount']!='') {
 echo '<form action="' . htmlspecialchars($_SERVER['PHP_SELF'] . '?identifier=' . $identifier . '&suppName='.$suppName. '&supplierID='.$_GET['supplierID']) . '&checkdate='.$checkdate.'&cv='.$_POST['VouchNum'].'" method="post">';
 echo '<div>';
 echo '<input type="hidden" name="FormID" value="' . $_SESSION['FormID'] . '" />';
+echo '<input type="hidden" name="formYou" value="'.$_SESSION["formMe"].'" />';
 
+//echo 'Session-'.$_SESSION['formMe'];
+//echo 'Post-'.$_POST['formYou'];
 echo '<br /><table class="selection">';
 
 echo '<tr><th colspan="4"><h3>' . _('Payment');
@@ -1184,8 +1190,8 @@ if (isset($_POST['GLManualCode'])) {
 				<td>' . $PaymentItem->GLCode . ' - ' . $PaymentItem->GLActName . '</td>
 				<td>' . stripslashes($PaymentItem->Narrative)  . '</td>
 				<td>' . $PaymentItem->Tag . ' - ' . $TagName . '</td>
-				<td><a href="' . htmlspecialchars($_SERVER['PHP_SELF'] . '?identifier=' . $identifier) . '&amp;Delete=' . $PaymentItem->ID . '" onclick="return confirm(\'' . _('Are you sure you wish to delete this payment analysis item?') . '\');">' . _('Delete') . '</a></td>
-				</tr>';
+				<td><a href="' . htmlspecialchars($_SERVER['PHP_SELF'] . '?identifier=' . $identifier) . '&amp;Delete=' . $PaymentItem->ID . '&supplierID='.$_GET['supplierID'].'" onclick="return confirm(\'' . _('Are you sure you wish to delete this payment analysis item?') . '\');">' . _('Delete') . '</a></td>
+				</tr>';  //Delete Here
 			$PaymentTotal += $PaymentItem->Amount;
 		}
 		echo '<tr>

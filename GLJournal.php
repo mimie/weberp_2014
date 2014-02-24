@@ -330,7 +330,7 @@ echo '<tr>
 
 echo '<tr>
     <th>' . _('Particulars:') . '</th>
-    <td colspan="2"><input type="text" name="Particulars" maxlength="50" size="70" value="' . $_POST['Particulars'] . '" /></td>
+    <td colspan="2"><input type="text" name="Particulars" maxlength="50" size="80" value="' . $_POST['Particulars'] . '" /></td>
   </tr>';
 
 echo '</table>';
@@ -339,7 +339,7 @@ echo '</table>';
 /* Set upthe form for the transaction entry for a GL Payment Analysis item */
 
 echo '<tr>
-		<th colspan="3">
+		<th colspan="2">
 		<div class="centre"><h2>' . _('Journal Line Entry') . '</h2></div>
 		</th>
 	</tr>';
@@ -348,20 +348,33 @@ echo '<tr>
 echo '<tr>
 		<th>' . _('GL Tag') . '</th>
 		<th>' . _('Select GL Account') . '</th>
-		<th>' . _('GL Account Code') . '</th>
+		
 	</tr>';
 
 /* Set upthe form for the transaction entry for a GL Payment Analysis item */
 
 //Select the tag
 echo '<tr>
-		<td><select name="tag">';
+		<td>
+			<input type="text" name="tagKey"/>
+			<input type="submit" name="searchTag" value="SearchTag"/><br>
+			<select name="tag">';
+if(isset($_POST['searchTag'])){
+$SQL = "SELECT tagref,
+                                tagdescription
+                FROM tags
+		WHERE tagref LIKE '%".$_POST['tagKey']."%'
+		OR tagdescription LIKE '%".$_POST['tagKey']."%'
+                ORDER BY tagref";
 
+}else{
 $SQL = "SELECT tagref,
 				tagdescription
 		FROM tags
 		ORDER BY tagref";
-
+}
+print_r($_POST);
+//die($SQL);
 $result=DB_query($SQL,$db);
 echo '<option value="0">0 - ' . _('None') . '</option>';
 while ($myrow=DB_fetch_array($result)){
@@ -372,20 +385,36 @@ while ($myrow=DB_fetch_array($result)){
 	}
 }
 echo '</select></td>';
+
 // End select tag
 
 if (!isset($_POST['GLManualCode'])) {
 	$_POST['GLManualCode']='';
 }
 
+
+echo '<td><input type="text" name="glKey" size="40"/>
+	  <input type="submit" value="SearchGL" name="searchGL"/><br>';
+
+if(isset($_POST['searchGL'])){
+$sql="SELECT accountcode,
+                        accountname,
+                        glacode
+                FROM chartmaster
+		WHERE glacode LIKE '%".$_POST['glKey']."%'
+		OR accountname LIKE '%".$_POST['glKey']."% '
+                ORDER BY glacode";
+
+}else{
 $sql="SELECT accountcode,
 			accountname,
 			glacode
 		FROM chartmaster
-		ORDER BY accountcode";
+		ORDER BY glacode";
+}
 
 $result=DB_query($sql, $db);
-echo '<td><select name="GLCode" onchange="return assignComboToInput(this,'.'GLManualCode'.')">';
+echo '<select name="GLCode" onchange="return assignComboToInput(this,'.'GLManualCode'.')">';
 echo '<option value="">' . _('Select a general ledger account code') . '</option>';
 while ($myrow=DB_fetch_array($result)){
 	if (isset($_POST['tag']) and $_POST['tag']==$myrow['accountcode']){
@@ -397,7 +426,7 @@ while ($myrow=DB_fetch_array($result)){
 echo '</select></td>';
 
 
-echo '<td><input class="number" type="text" name="GLManualCode" maxlength="12" size="12" onchange="inArray(this.value, GLCode.options,'.        "'".'The account code '."'".'+ this.value+ '."'".' doesnt exist'."'".')" value="'. $_POST['GLManualCode'] .'"  /></td>';
+echo '<td><input class="number" type="hidden" name="GLManualCode" maxlength="12" size="12" onchange="inArray(this.value, GLCode.options,'.        "'".'The account code '."'".'+ this.value+ '."'".' doesnt exist'."'".')" value="'. $_POST['GLManualCode'] .'"  /></td>';
 
 
 if (!isset($_POST['GLNarrative'])) {
