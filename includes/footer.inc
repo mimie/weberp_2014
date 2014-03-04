@@ -9,7 +9,7 @@ echo '<div id="FooterDiv">';
 echo '<div id="FooterWrapDiv">';
 
 echo '<div id="FooterLogoDiv" border="1">';
-	echo '<img src="'. $rootpath . '/' . $_SESSION['LogoFile'] . '" width="70" height="50" alt="webERP" title="webERP ' . _('Copyright') . ' &copy; weberp.org - ' . date('Y') . '" />';
+	echo '<img src="'. $rootpath . '/' . $_SESSION['LogoFile'] . '" width="100" height="50" alt="webERP" title="webERP ' . _('Copyright') . ' &copy; weberp.org - ' . date('Y') . '" />';
 echo '</div>';
 
 echo '<div id="FooterVersionDiv">';

@@ -42,7 +42,7 @@ $sql="SELECT gltrans.typeno,
                 gltrans.invoice
         FROM gltrans
         WHERE gltrans.type = '12'
-        AND gltrans.invoice = '".$_GET['dctno']."'
+        AND gltrans.invoice LIKE '".$_GET['dctno']."%'
         AND gltrans.amount > 0
         GROUP BY gltrans.typeno
         ORDER BY gltrans.typeno";
@@ -200,6 +200,9 @@ if($row['jobref']=='Cash'){
 }elseif($row['jobref']=='Cheque'){
 	$ccheck=$row['totalamount'];
 	$totalccheck=$totalccheck+$ccheck;
+}elseif($row['jobref']=='Direct Credit'){
+	$direct=$row['totalamount'];
+	$totalddeposit=$totalddeposit+$direct;
 }
 $dct=$row['invoice'];
 ?>
@@ -519,7 +522,7 @@ $totalcheckcol=$totalccheck+$totalpcheck;
   <td class=xl7632382 style='border-top:none'>&nbsp;</td>
   <td class=xl7532382 style='border-top:none'>&nbsp;</td>
   <td colspan=4 rowspan=3 class=xl15932382 style='border-right:1.0pt solid black;
-  border-bottom:1.0pt solid black'><?=$dct?></td>
+  border-bottom:1.0pt solid black'><?=$_GET['dctno']?></td>
   <td class=xl6532382>&nbsp;</td>
  </tr>
  <tr height=20 style='mso-height-source:userset;height:15.0pt'>

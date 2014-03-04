@@ -81,19 +81,30 @@ td.number {
 </p>
 
 <table class="style4">
+	<tr>
+		<td><b>Date Printed:</b></td>
+		<td><?=date('m/d/Y h:i A')?></td>
+	</tr><tr>
+		<td><b>Printed By:</b></td>
+		<td><?=$_GET['uname']?></td>
+	</tr>
+</table>
+
+<br>
+<table class="style4">
 
 <tr>
-	<th>Date</th>
-	<th>Check Voucher Number</th>
-	<th>Check Number</th>
-	<th>Check Date</th>
-	<th>Supplier/Payee</th>
-	<th>Account Code</th>
-	<th>Account Description</th>
-	<th>Narrative</th>
-	<th>Debit</th>
-	<th>Credit</th>
-	<th>GL-Tags</th>
+	<th><u>Date</u></th>
+	<th><u>Check Voucher Number</u></th>
+	<th><u>Check Number</u></th>
+	<th><u>Check Date</u></th>
+	<th><u>Supplier/Payee</u></th>
+	<th><u>Account Code</u></th>
+	<th><u>Account Description</u></th>
+	<th><u>Narrative</u></th>
+	<th><u>Debit</u></th>
+	<th><u>Credit</u></th>
+	<th><u>GL-Tags</u></th>
 
 </tr>
 
@@ -102,9 +113,9 @@ td.number {
 ?>
 	<tr>	
 			<td><?=$array_date[$x]?></td>
-			<td><?=$array_voucher[$x]?></td>
+			<td><center><?=$array_voucher[$x]?></center></td>
 			<td><?=$array_checkno[$x]?></td>
-			<td><?=$array_checkdate[$x]?></td>
+			<td><?=date('m/d/Y',strtotime($array_checkdate[$x]))?></td>
 			<td><?=$array_suppname[$x]?></td>
 			<td><?=$array_glacode[$x]?></td>
 			<td><?=$array_accname[$x]?></td>
@@ -123,19 +134,18 @@ td.number {
 <tr>
             <td colspan="7"></td>
             <td colspan="1"><b>Total</b></td>
-            <td class="number"><b><?=number_format($_POST['totaldb'],2)?></b></td>
-            <td class="number"><b><?=number_format($_POST['totalcr'],2)?></b></td>
+            <td class="number"><u><b><?=number_format($_POST['totaldb'],2)?></b></u></td>
+            <td class="number"><u><b><?=number_format($_POST['totalcr'],2)?></b></u></td>
           </tr>
 
 
 <tr>
-                <td colspan=8><b><center>=======GL Summary=======</center></b></td>
+                <th colspan=11><b><center>'=======GL Summary======='</center></b></th>
 </tr>
-
-
+</table>
+<table class="style4">
 <tr>
-        <td></td>
-        <td></td>
+        <td colspan=3>&nbsp;</td>
         <td><b><u>GL Code</u></b></td>
         <td><b><u>Account Name</u></b></td>
         <td></td>
@@ -155,8 +165,7 @@ while($row=mysql_fetch_array($result)){
 $myNet=$row['totalpositive']+$row['totalnegative'];
 ?>
 <tr>
-        <td></td>
-        <td></td>
+        <td colspan=3>&nbsp;</td>
         <td><?=$row['glacode']?></td>
         <td><?=$row['accountname']?></td>
         <td></td>
@@ -176,11 +185,11 @@ $totalnet=$totalnet+$myNet;
                 <td colspan=8></td>
 </tr>
 <tr>
-            <td colspan="4"></td>
+            <td colspan="5"></td>
             <td colspan="1"><b>Total</b></td>
-            <td class="number"><b><?=number_format($totalpos,2)?></b></td>
-            <td class="number"><b><?=number_format($totalneg,2)?></b></td>
-            <td class="number"><b><?=number_format($totalnet,2)?></b></td>
+            <td class="number"><u><b><?=number_format($totalpos,2)?></b></u></td>
+            <td class="number"><u><b><?=number_format($totalneg,2)?></b></u></td>
+            <td class="number"><u><b><?=number_format($totalnet,2)?></b></u></td>
           </tr>
 
 

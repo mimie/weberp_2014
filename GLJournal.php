@@ -177,10 +177,10 @@ if (isset($_POST['CommitBatch']) AND $_POST['CommitBatch']==_('Accept and Proces
 				$AllowThisPosting = false;
 			}
 		}
-		if (in_array($_POST['GLManualCode'], $_SESSION['JournalDetail']->BankAccounts)) {
+		/*if (in_array($_POST['GLManualCode'], $_SESSION['JournalDetail']->BankAccounts)) {
 			prnMsg(_('GL Journals involving a bank account cannot be entered') . '. ' . _('Bank account general ledger entries must be entered by either a bank account receipt or a bank account payment'),'info');
 			$AllowThisPosting = false;
-		}
+		}*/
 
 		if ($AllowThisPosting) {
 			$SQL = "SELECT accountname,
@@ -223,10 +223,10 @@ if (isset($_POST['CommitBatch']) AND $_POST['CommitBatch']==_('Accept and Proces
 			$AllowThisPosting = false;
 		}
 
-		if (in_array($_POST['GLCode'], $_SESSION['JournalDetail']->BankAccounts)) {
+		/*if (in_array($_POST['GLCode'], $_SESSION['JournalDetail']->BankAccounts)) {
 			prnMsg(_('GL Journals involving a bank account cannot be entered') . '. ' . _('Bank account general ledger entries must be entered by either a bank account receipt or a bank account payment'),'warn');
 			$AllowThisPosting = false;
-		}
+		}*/
 
 		if ($AllowThisPosting){
 			if (!isset($_POST['GLAmount'])) {

@@ -195,7 +195,7 @@ if (!isset($_POST['Show'])) {
 	echo '</form>';
 	
  $myUrl=$rootpath .'/print/printPaymentJournal.php?';
-	echo '<form method="POST" action="'.$myUrl.'" target="blank">';
+	echo '<form method="POST" action="'.$myUrl.'&amp;uname='.$Uname.'" target="blank">';
 				echo '<input type="hidden" name="glacode" value="'.implode(",",$list_glacode).'"/>';
   			echo '<input type="hidden" name="accname" value="'.implode("+",$list_accname).'"/>';
 				echo '<input type="hidden" name="vouch" value="'.implode("+",$list_voucher).'"/>';
@@ -219,7 +219,7 @@ if (!isset($_POST['Show'])) {
 	echo '<button name="Print" onclick="window.open("'.$myUrl.'")">Print';
 	echo '</form>';
 
-	echo '<form method="POST" action="'.$myUrl.'&amp;export=1" target="blank">';
+	echo '<form method="POST" action="'.$myUrl.'&amp;export=1&amp;uname='.$Uname.'" target="blank">';
                                 echo '<input type="hidden" name="glacode" value="'.implode(",",$list_glacode).'"/>';
                         echo '<input type="hidden" name="accname" value="'.implode("+",$list_accname).'"/>';
                                 echo '<input type="hidden" name="vouch" value="'.implode("+",$list_voucher).'"/>';

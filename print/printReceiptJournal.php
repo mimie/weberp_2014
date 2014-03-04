@@ -8,6 +8,7 @@ $array_tags=explode('+',$_POST['tags']);
 $array_jv=explode('+',$_POST['jv']);
 $array_date=explode('+',$_POST['dates']);
 $array_name=explode('+',$_POST['custname']);
+$array_dct=explode('_',$_POST['dct']);
 $myCtr=count($array_glacode);
 #die(print_r($_POST));
 
@@ -45,6 +46,8 @@ if(isset($_GET['export']) &&($_GET['export']==1)){
 }
 
 
+//print_r($_POST);
+//echo 'here'.$_POST['dct'];
 ?>
 <title>Print Cash Receipt Journal</title>
 <style type="text/css">
@@ -80,6 +83,7 @@ td.number {
 
 <tr>
 	<th>OR/AR No.</th>
+	<th>DCT No.</th>
 	<th>Date</th>
 	<th>Customer Name</th>
 	<th>Narrative</th>
@@ -96,6 +100,7 @@ td.number {
 ?>
 	<tr>	
 			<td><?=$array_jv[$x]?></td>
+			<td><?=$array_dct[$x]?></td>
 			<td><?=$array_date[$x]?></td>
 			<td><?=$array_name[$x]?></td>
 			<td><?=$array_narrative[$x]?></td>

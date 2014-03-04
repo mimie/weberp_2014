@@ -31,7 +31,7 @@ if (!isset($_POST['Show'])) {
 		gltrans.invoice
 	FROM gltrans
 	WHERE gltrans.type = '12'
-	AND gltrans.invoice = '".$_POST['DCTNum']."'
+	AND gltrans.invoice LIKE '".$_POST['DCTNum']."%'
 	AND gltrans.amount > 0
 	GROUP BY gltrans.typeno
 	ORDER BY gltrans.typeno";

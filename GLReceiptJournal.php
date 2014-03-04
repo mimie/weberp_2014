@@ -58,6 +58,7 @@ if (!isset($_POST['Show'])) {
 				tags.tagdescription,
 				gltrans.jobref,
 				gltrans.voucherno,
+				gltrans.invoice,
 				dm.name
 			FROM gltrans
 			LEFT JOIN chartmaster
@@ -73,7 +74,7 @@ if (!isset($_POST['Show'])) {
 				AND gltrans.trandate<='" . FormatDateForSQL($_POST['ToTransDate']) . "'
 				AND gltrans.typeno>='" . $_POST['NumberFrom'] . "'
 				AND gltrans.typeno<='" . $_POST['NumberTo'] . "'
-			ORDER BY gltrans.typeno";
+			ORDER BY gltrans.invoice, gltrans.voucherno, gltrans.typeno";
 	//die($sql);
 	$result = DB_query($sql, $db);
 	if (DB_num_rows($result)==0) {
@@ -81,6 +82,7 @@ if (!isset($_POST['Show'])) {
 	} else {
 		echo '<table class="selection">';
 		echo '<tr>
+				<th>' .('DCT No.').'</th>
 				<th>' . ('OR Number') . '</th>
 				<th>'._('Date').'</th>
 				<th>'._('Customer Name').'</th>
@@ -104,6 +106,7 @@ if (!isset($_POST['Show'])) {
 		$list_tags=array();
 		$list_jv=array();
 		$list_date=array();
+		$list_dct=array();
 		while ($myrow = DB_fetch_array($result)){
 		$db=0;
     $cr=0;
@@ -113,15 +116,23 @@ if (!isset($_POST['Show'])) {
 			}
 
 			if ($myrow['typeno']!=$LastJournal) {
+				if(strlen($myrow['voucherno'])==4){
+					$orar='AR-'.$myrow['voucherno'];
+				}else{
+					$orar='OR-'.$myrow['voucherno'];
+				}
 				echo '<tr><td colspan="8"</td></tr><tr>
-					<td class="number">'.$myrow['voucherno'].'</td>
+					<td class="number">'.$myrow['invoice'].'</td>
+					<td class="number">'.$orar.'</td>
 					<td>'. ConvertSQLDate($myrow['trandate']) . '</td>';
-					array_push($list_jv,$myrow['voucherno']);
+					array_push($list_jv,$orar);
+					array_push($list_dct,$myrow['invoice']);
 					array_push($list_date, ConvertSQLDate($myrow['trandate']) );
 			} else {
-				echo '<tr><td colspan="2"></td>';
+				echo '<tr><td colspan="3"></td>';
 				array_push($list_jv,'');
 				array_push($list_date,'');
+				array_push($list_dct,'');
 			}
 			
 
@@ -189,9 +200,10 @@ if (!isset($_POST['Show'])) {
  $myUrl=$rootpath .'/print/printReceiptJournal.php?';
 	echo '<form method="POST" action="'.$myUrl.'" target="blank">';
 				echo '<input type="hidden" name="glacode" value="'.implode(",",$list_glacode).'"/>';
-  			echo '<input type="hidden" name="accname" value="'.implode("+",$list_accname).'"/>';
+  				echo '<input type="hidden" name="accname" value="'.implode("+",$list_accname).'"/>';
 				echo '<input type="hidden" name="custname" value="'.implode("+",$list_name).'"/>';
 				echo '<input type="hidden" name="narrative" value="'.implode("+",$list_narrative).'"/>';
+				echo '<input type="hidden" name="dct" value="'.implode("_",$list_dct).'"/>';
 				echo '<input type="hidden" name="db" value="'.implode("*",$list_db).'"/>';
 				echo '<input type="hidden" name="cr" value="'.implode("*",$list_cr).'"/>';
 				echo '<input type="hidden" name="tags" value="'.implode("+",$list_tags).'"/>';
@@ -212,6 +224,7 @@ if (!isset($_POST['Show'])) {
                         	echo '<input type="hidden" name="accname" value="'.implode("+",$list_accname).'"/>';
                                 echo '<input type="hidden" name="custname" value="'.implode("+",$list_name).'"/>';
                                 echo '<input type="hidden" name="narrative" value="'.implode("+",$list_narrative).'"/>';
+				echo '<input type="hidden" name="dct" value="'.implode("_",$list_dct).'"/>';
                                 echo '<input type="hidden" name="db" value="'.implode("*",$list_db).'"/>';
                                 echo '<input type="hidden" name="cr" value="'.implode("*",$list_cr).'"/>';
                                 echo '<input type="hidden" name="tags" value="'.implode("+",$list_tags).'"/>';

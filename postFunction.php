@@ -6,7 +6,7 @@
   </script>
 <?php
 
-function myPost($eventType,$eventName,$amount,$custName){
+function myPost($eventType,$eventName,$amount,$custName,$custID,$billingNo,$billingDate){
 $db=mysql_connect('10.110.215.92', 'iiap', 'mysqladmin');
 if (!$db) {
           die('Could not connect: ' . mysql_error());
@@ -16,13 +16,13 @@ $narrative="Accounts Receivable of ".$custName." for ".$eventName;
 
 //***************GET LAST TYPENO
 mysql_select_db("iiap_weberp2014", $db);
-$sql="SELECT typeno FROM systypes WHERE typeid=0;";
+$sql="SELECT typeno FROM systypes WHERE typeid=5;";
 $result=mysql_query($sql);
 $myrow=mysql_fetch_array($result);
 
 $newNo=$myrow[0]+1;
 
-$sql="UPDATE systypes SET typeno='".$newNo."' WHERE typeid=0";
+$sql="UPDATE systypes SET typeno='".$newNo."' WHERE typeid=5";
 mysql_query($sql);
 
 
@@ -37,14 +37,14 @@ $b=0;
 while($row=mysql_fetch_array($result)){
 	//echo $row['id'].'-'.$row['glCode'].'-';
 	if($row['debitcredit']==0){
-		$sql=myInsert($newNo,$row['glCode'],$narrative,$amount);
+		$sql=myInsert($newNo,$row['glCode'],$narrative,$amount,$custName,$custID,$billingNo,$billingDate,$eventType,$eventName);
 		//echo $sql;
 		mysql_query($sql);
 		//echo $amount;
 	}
 	elseif($row['withvat']==0){
 		$amount=$amount*(-1);
-		$sql=myInsert($newNo,$row['glCode'],$narrative,$amount);
+		$sql=myInsert($newNo,$row['glCode'],$narrative,$amount,$custName,$custID,$billingNo,$billingDate,$eventType,$eventName);
     		//echo $sql;
 		mysql_query($sql);
 		//echo $amount;
@@ -55,14 +55,14 @@ while($row=mysql_fetch_array($result)){
 		if($row['vatact']==0){
 			$newAmount=$amount-$vat;
 			$newAmount=$newAmount*(-1);
-			$sql=myInsert($newNo,$row['glCode'],$narrative,$newAmount);
+			$sql=myInsert($newNo,$row['glCode'],$narrative,$newAmount,$custName,$custID,$billingNo,$billingDate,$eventType,$eventName);
     	//echo $sql;
 			mysql_query($sql);
 			$a= $amount-$vat;
 		}
 		else{
 			$newVat=$vat*(-1);
-			$sql=myInsert($newNo,$row['glCode'],$narrative,$newVat);
+			$sql=myInsert($newNo,$row['glCode'],$narrative,$newVat,$custName,$custID,$billingNo,$billingDate,$eventType,$eventName);
 	    //echo $sql;
 			mysql_query($sql);
 			$b=$vat;
@@ -80,7 +80,7 @@ $c=$a+$b;
 }
 
 
-function myInsert($typeno,$act,$narrative,$amount){
+function myInsert($typeno,$act,$narrative,$amount,$custName,$custID,$billingNo,$billingDate,$eventType,$eventName){
 
 $insql="INSERT INTO gltrans (type,
                     typeno,
@@ -88,14 +88,22 @@ $insql="INSERT INTO gltrans (type,
                     periodno,
                     account,
                     narrative,
-                    amount)
-				VALUES ('0','".
+                    amount,
+		    suppcust,
+		    voucher,
+		    checkdate,
+		    jobref)
+				VALUES ('5','".
 								$typeno."',
 								'".date('Y-m-d')."',
-								'10',
+								'12',
 								'".$act."',
 								'".$narrative."',
-								'".$amount."');";
+								'".$amount."',
+								'".$custID."',
+								'".$billingNo."',
+								'".$billingDate."',
+								'".$eventType."-".$eventName."');";
 
 return $insql;
 
