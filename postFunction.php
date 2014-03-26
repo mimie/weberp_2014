@@ -85,6 +85,9 @@ $c=$a+$b;
 
 function myInsert($typeno,$act,$narrative,$amount,$custName,$custID,$billingNo,$billingDate,$eventType,$eventName){
 
+$jobRef = $eventType."-".$eventName;
+$jobRef = mysql_real_escape_string($jobRef);
+
 $insql="INSERT INTO gltrans (type,
                     typeno,
                     trandate,
@@ -106,7 +109,7 @@ $insql="INSERT INTO gltrans (type,
 								'".$custID."',
 								'".$billingNo."',
 								'".$billingDate."',
-								'".$eventType."-".$eventName."');";
+								'".$jobRef."');";
 
 return $insql;
 
