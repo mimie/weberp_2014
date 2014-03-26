@@ -30,6 +30,13 @@
 	font-size: 18px;
 }
 
+.style18 {
+        font-family: Arial;
+        font-weight: bold;
+        font-size: 18px;
+}
+
+
 td.number {
     text-align: right;
 }
@@ -101,9 +108,9 @@ $cr=0;
 	$nar='';
 	$narLen=strlen($row['narrative']);
 	
-	if($narLen>25){
-		$nar=substr($row['narrative'],0,25).'...';
-	}else
+	//if($narLen>50){
+	//	$nar=substr($row['narrative'],0,50).'...';
+	//}else
 		$nar=$row['narrative'];
 
         array_push($list_narrative,$nar);
@@ -155,6 +162,10 @@ $myCtr=count($list_glacode);
 <body onload="printTkt()">
 <font face="Arial">
 <?php
+if(strlen($ref)>50){
+	$ref=substr($ref,0,50).'...';
+}
+
 $header='<p class="style1">Institute of Internal Auditors Philippines, Inc.</p>
 <p align="center" class="style3">JOURNAL VOUCHER</p>
 <table width="860" border="0">
@@ -163,22 +174,22 @@ $header='<p class="style1">Institute of Internal Auditors Philippines, Inc.</p>
     <td width="380" rowspan="2">'.$ref.'</td>
      <td>&nbsp;</td>
     <td width="100"><div align="right"><span class="style7">Date:</span></div></td>
-    <td width="145"><span class="style7">'.$transdate.'</span></td>
+    <td width="145"><span class="style7">'.date('m/d/Y',strtotime($transdate)).'</span></td>
   </tr>
   <tr>
     <td>&nbsp;</td>
      <td>&nbsp;</td>
     <td><div align="right"><span class="style7">Number: </span></div></td>
-    <td><span class="style7">'.$_GET['vouchNum'].'</span></td>
+    <td><span class="style18">'.$_GET['vouchNum'].'</span></td>
   </tr>
 </table>
 <table  border="1">
   <tr>
     <td width="105"><span class="style16">ACCT. CODE</span></td>
-    <td width="200"><span class="style16">ACCOUNT TITLE</span></td>
-    <td width="237"><span class="style16">Trans Description</span></td>
-    <td width="140"><span class="style16">DEBIT</span></td>
-    <td width="144"><span class="style16">CREDIT</span></td>
+    <td width="190"><span class="style16">ACCOUNT TITLE</span></td>
+    <td width="330"><span class="style16">Trans Description</span></td>
+    <td width="100"><span class="style16">DEBIT</span></td>
+    <td width="100"><span class="style16">CREDIT</span></td>
   </tr>
 </table>
 <table width="857" border="1">
@@ -195,9 +206,9 @@ echo $header;
 	 <tr>
     		<td width="100"><span class="style16"><?php echo $list_glacode[$x];?></span></td>
     		<td width="200"><span class="style16"><?php echo $list_accname[$x];?></span></td>
-		<td width="240"><span class="style16"><?php echo $list_narrative[$x];?></span></td>
-    		<td width="140" class="number"><span class="style16"><?php echo number_format($list_db[$x],2);?></span></td>
-    		<td width="140" class="number"><span class="style16"><?php echo number_format($list_cr[$x],2);?></span></td>
+		<td width="350"><span class="style16"><?php echo $list_narrative[$x];?></span></td>
+    		<td width="100" class="number"><span class="style16"><?php echo number_format($list_db[$x],2);?></span></td>
+    		<td width="100" class="number"><span class="style16"><?php echo number_format($list_cr[$x],2);?></span></td>
   	 </tr>
 	<?php 
 
@@ -225,9 +236,9 @@ echo $header;
 </table>
 <table  border="1">
   <tr>
-    <td width="555"><div align="center" class="style17">TOTAL</div></td>
-    <td width="139" class="number"><?php echo number_format($totaldb,2);?></td>
-    <td width="144" class="number"><?php echo number_format($totalcr,2);?></td>
+    <td width="637"><div align="center" class="style17">TOTAL</div></td>
+    <td width="100" class="number"><?php echo number_format($totaldb,2);?></td>
+    <td width="100" class="number"><?php echo number_format($totalcr,2);?></td>
   </tr>
   
 </table>

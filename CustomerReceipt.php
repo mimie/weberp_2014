@@ -186,6 +186,7 @@ if (isset($_POST['Process'])){ //user hit submit a new entry to the receipt batc
 		//die(print_r( $_SESSION['ReceiptBatch']));
 		$Cancel = 1;
 	}
+	//print_r($_SESSION['ReceiptBatch']);
 }
 
 if (isset($Cancel)){
@@ -196,6 +197,7 @@ if (isset($Cancel)){
 	unset($_POST['Discount']);
 	unset($_POST['Narrative']);
 	unset($_POST['PayeeBankDetail']);
+	unset($_POST['tag']);
 }
 
 
@@ -203,7 +205,7 @@ if (isset($_POST['CommitBatch'])){
 
  /* once all receipts items entered, process all the data in the
   session cookie into the DB creating a single banktrans for the whole amount
-  of all receipts in the batch and DebtorTrans records for each receipt item
+  of all receipts in the batch and DebtorTrans records for each receipt ite//m
   all DebtorTrans will refer to a single banktrans. A GL entry is created for
   each GL receipt entry and one for the debtors entry and one for the bank
   account debit
@@ -255,6 +257,7 @@ if (isset($_POST['CommitBatch'])){
 				<th>' . _('Date Banked') . '</th>
 				<th>' . _('Customer Name') . '</th>
 				<th>' . _('GL Code') . '</th>
+				<th>' ._('Tag') . '</th>
 				<th>' . _('Amount of Receipt').'</th>
 			</tr>';
 
@@ -276,8 +279,10 @@ if (isset($_POST['CommitBatch'])){
 				<td>'.$_SESSION['ReceiptBatch']->DateBanked.'</td>
 				<td>'.$ReceiptItem->CustomerName.'</td>
 				<td>'.$ReceiptItem->GLCode.' - '.$myrow['accountname'].'</td>
+				<td>'.$ReceiptItem->tag.'</td>
 				<td class="number">'.locale_number_format($ReceiptItem->Amount/$_SESSION['ReceiptBatch']->ExRate/$_SESSION['ReceiptBatch']->FunctionalExRate,$_SESSION['ReceiptBatch']->CurrDecimalPlaces) .'</td>';
-
+		
+		echo 'Here'.$ReceiptItem->Narrative. 'Here' .$ReceiptItem->tag;
 
 //dito print
 
@@ -300,6 +305,7 @@ if (isset($_POST['CommitBatch'])){
 		//if ($ReceiptItem->GLCode !=''){ //so its a GL receipt   //eto yung problema
 		 if ($ReceiptItem->Customer ==''){ 
 			//die("if");
+			//echo 'Here '. $ReceiptItem->Narrative. 'Here'. $ReceiptItem->tag;
 			if ($_SESSION['CompanyRecord']['gllink_debtors']==1){ /* then enter a GLTrans record */
 				 $SQL = "INSERT INTO gltrans (type,
 								 			typeno,
@@ -318,7 +324,7 @@ if (isset($_POST['CommitBatch'])){
 						'" . FormatDateForSQL($_SESSION['ReceiptBatch']->DateBanked) . "',
 						'" . $PeriodNo . "',
 						'" . $ReceiptItem->GLCode . "',
-						'" . $ReceiptItem->Narrative . "',
+						'" . $ReceiptItem->Narrative."',
 						'" . -($ReceiptItem->Amount/$_SESSION['ReceiptBatch']->ExRate/$_SESSION['ReceiptBatch']->FunctionalExRate) . "',
 						'" . $ReceiptItem->tag . "'" . ",
 						'".$_SESSION['ReceiptBatch']->ReceiptType."',
@@ -414,6 +420,38 @@ if (isset($_POST['CommitBatch'])){
 			$BatchDebtorTotal += (($ReceiptItem->Discount + $ReceiptItem->Amount)/$_SESSION['ReceiptBatch']->ExRate/$_SESSION['ReceiptBatch']->FunctionalExRate);
 			/*Create a DebtorTrans entry for each customer deposit */
 			//die("else");
+
+			 $SQL = "INSERT INTO gltrans (type,
+                                                                                        typeno,
+                                                                                        trandate,
+                                                                                        periodno,
+                                                                                        account,
+                                                                                        narrative,
+                                                                                        amount,
+                                                                                        tag,
+                                                                                        jobref,
+                                                                                        voucherno,
+                                                                                        invoice)
+                                        VALUES (
+                                                12,
+                                                '" . $_SESSION['ReceiptBatch']->BatchNo . "',
+                                                '" . FormatDateForSQL($_SESSION['ReceiptBatch']->DateBanked) . "',
+                                                '" . $PeriodNo . "',
+                                                '" . $ReceiptItem->GLCode . "',
+                                                '" .$ReceiptItem->Narrative."',
+                                                '" . -($ReceiptItem->Amount/$_SESSION['ReceiptBatch']->ExRate/$_SESSION['ReceiptBatch']->FunctionalExRate) . "',
+                                                '" . $ReceiptItem->tag . "'" . ",
+                                                '".$_SESSION['ReceiptBatch']->ReceiptType."',
+                                                '".$_POST['receiptNumber']."',
+                                                '".$dct."'
+                                        )";
+                                $ErrMsg = _('Cannot insert a GL entry for the receipt because');
+                                $DbgMsg = _('The SQL that failed to insert the receipt GL entry was');
+                                $result = DB_query($SQL,$db,$ErrMsg,$DbgMsg,true);
+
+
+
+			
 			$SQL = "INSERT INTO debtortrans (transno,
 											type,
 											debtorno,
@@ -495,6 +533,7 @@ if (isset($_POST['CommitBatch'])){
 
 		if ($BatchReceiptsTotal!=0){
 			/* Bank account entry first */
+			echo 'Here'.$ReceiptItem->Narrative. 'Here' .$ReceiptItem->tag;
 			$SQL="INSERT INTO gltrans (type,
 										typeno,
 										trandate,
@@ -525,7 +564,8 @@ if (isset($_POST['CommitBatch'])){
 		}
 		if ($BatchDebtorTotal!=0){
 			/* Now Credit Debtors account with receipts + discounts */
-			$SQL="INSERT INTO gltrans ( type,
+			//echo 'Here'.$ReceiptItem->Narrative. 'Here' .$ReceiptItem->tag;
+			/*$SQL="INSERT INTO gltrans ( type,
 										typeno,
 										trandate,
 										periodno,
@@ -534,18 +574,20 @@ if (isset($_POST['CommitBatch'])){
 										amount,
 										jobref,
 										voucherno,
-										invoice)
+										invoice,
+										tag)
 						VALUES (
 							12,
 							'" . $_SESSION['ReceiptBatch']->BatchNo . "',
 							'" . FormatDateForSQL($_SESSION['ReceiptBatch']->DateBanked) . "',
 							'" . $PeriodNo . "',
-							'". $ReceiptItem->GLCode. "',
-							'" .$ReceiptItem->Narrative . "',
+							'". $_SESSION['ReceiptBatch']->GLCode. "',
+							'Nyeta',
 							'" . -$BatchDebtorTotal . "',
 							'".$_SESSION['ReceiptBatch']->ReceiptType."',
 							'".$_POST['receiptNumber']."',
-							'".$dct."'
+							'".$dct."',
+							'".$ReceiptItem->tag."'
 							)";
 			//echo 'Here'.$_POST['ReceiptClass'];
 
@@ -553,6 +595,7 @@ if (isset($_POST['CommitBatch'])){
 			$DbgMsg = _('The SQL that failed to insert the GL transaction for the debtors account credit was');
 			$ErrMsg = _('Cannot insert a GL transaction for the debtors account credit');
 			$result = DB_query($SQL,$db,$ErrMsg,$DbgMsg,true);
+			*/
 
 
 		//update billing
@@ -1021,6 +1064,7 @@ if (isset($_SESSION['ReceiptBatch'])){
 			<th>' . _('Discount') . '</th>
 			<th>' . _('Customer') . '</th>
 			<th>' . _('GL Code') . '</th>
+			<th>' . _('Tag') . '</th>
 			<th>' . _('Narrative') . '</th>
 		</tr>';
 
@@ -1037,6 +1081,7 @@ if (isset($_SESSION['ReceiptBatch'])){
 				<td class="number">' . locale_number_format($ReceiptItem->Discount,$_SESSION['ReceiptBatch']->CurrDecimalPlaces) . '</td>
 				<td>' . stripslashes($ReceiptItem->CustomerName) . '</td>
 				<td>'.$ReceiptItem->GLCode.' - '.$myrow['accountname'].'</td>
+				<td>'.$ReceiptItem->tag . '</td>
 				<td>'.$ReceiptItem->Narrative . '</td>
 				<td><a href="' . htmlspecialchars($_SERVER['PHP_SELF'],ENT_QUOTES,'UTF-8') . '?Delete=' . $ReceiptItem->ID . '&Type=' . $_GET['Type']. '">' . _('Delete') . '</a></td>
 			</tr>';
@@ -1195,7 +1240,7 @@ if (isset($_POST['GLEntry']) AND isset($_SESSION['ReceiptBatch'])){
 			</tr>';
 
 	//Select the tag
-	echo '<tr>
+	/*echo '<tr>
 			<td>' . _('Select Tag') . ':</td>
 			<td><select name="tag">';
 
@@ -1216,7 +1261,7 @@ if (isset($_POST['GLEntry']) AND isset($_SESSION['ReceiptBatch'])){
 	echo '</select></td>
 		</tr>';
 // End select tag
-
+*/
 	/*now set up a GLCode field to select from avaialble GL accounts */
 	/*echo '<tr>
 	//		<td>' . _('GL Account1') . ':</td>
@@ -1239,7 +1284,9 @@ if (isset($_POST['GLEntry']) AND isset($_SESSION['ReceiptBatch'])){
 		echo '</select></td>
 			</tr>';
 	} */
+
 }
+//<====curly ng if sa taas
 
 /*if either a customer is selected or its a GL Entry then set out
 the fields for entry of receipt amt, disc, payee details, narrative */
@@ -1283,11 +1330,29 @@ if (((isset($_SESSION['CustomerRecord'])
 // End select tag
 
         /*now set up a GLCode field to select from avaialble GL accounts */
-        echo '<tr>
-                        <td>' . _('GL Account') . ':</td>
-                        <td><select tabindex="8" name="GLCode">';
 
-        $SQL = "SELECT accountcode, accountname, glacode FROM chartmaster ORDER BY accountcode";
+
+	echo '	<td>' . _('GL Account') . ':</td>
+		<td><input type="text" name="glKey" size="40"/>
+		<input type="submit" value="SearchGL" name="searchGL"/><br>';
+
+if(isset($_POST['searchGL'])){
+$SQL="SELECT accountcode,
+                        accountname,
+                        glacode
+                FROM chartmaster
+                WHERE glacode LIKE '%".$_POST['glKey']."%'
+                OR accountname LIKE '%".$_POST['glKey']."%'
+                ORDER BY glacode";
+
+}else{
+ $SQL = "SELECT accountcode, accountname, glacode FROM chartmaster ORDER BY glacode";
+
+
+}
+        echo ' <select tabindex="8" name="GLCode">';
+
+      //  $SQL = "SELECT accountcode, accountname, glacode FROM chartmaster ORDER BY glacode";
         $result=DB_query($SQL,$db);
         if (DB_num_rows($result)==0){
                 echo '</select>' . _('No General ledger accounts have been set up yet') . ' - ' . _('receipts cannot be entered against GL accounts until the GL accounts are set up') . '</td>
@@ -1306,7 +1371,7 @@ if (((isset($_SESSION['CustomerRecord'])
         }
 
 
-
+//GLTag
 
 
 	echo '<tr>
@@ -1315,10 +1380,66 @@ if (((isset($_SESSION['CustomerRecord'])
 		</tr>';
 //	echo '<tr><td>' . _('Narrative') . ':</td>
 //		<td><input tabindex="13" type="text" name="Narrative" maxlength="30" size="32" value="' . $_POST['Narrative'] . '" /></td></tr>';
+	//Balik
 	echo '<td>' . _('Narrative') . ':</td>
 			<td><textarea name="Narrative"  cols="40" rows="1">'.$nar.'</textarea></td>
-		</tr>
-		</table>
+		</tr>';
+
+
+        //Select the tag
+
+	echo '<tr>
+                        <td>' . _('Select Tag') . ':</td>
+
+                <td>
+                        <input type="text" name="tagKey"/>
+                        <input type="submit" name="searchTag" value="SearchTag"/><br>';
+                        
+if(isset($_POST['searchTag'])){
+$SQL = "SELECT tagref,
+                tagid,
+                                tagdescription
+                FROM tags
+                WHERE (tagid LIKE '%".$_POST['tagKey']."%'
+                OR tagdescription LIKE '%".$_POST['tagKey']."%')
+                AND status='Open'
+                ORDER BY tagid";
+
+}else{
+    $SQL = "SELECT tagref,
+                                        tagdescription,
+                                        tagid
+                                        FROM tags
+                                        WHERE status='Open'
+                                        ORDER BY tagid";
+}	
+
+
+        echo '
+                        <select name="tag">';
+
+       /* $SQL = "SELECT tagref,
+                                        tagdescription,
+					tagid
+                                        FROM tags
+					WHERE status='Open'
+                                        ORDER BY tagid";*/
+
+        $result=DB_query($SQL,$db);
+        echo '<option value="0"></option>';
+        while ($myrow=DB_fetch_array($result)){
+                if (isset($_POST['tag']) and $_POST['tag']==$myrow['tagref']){
+                        echo '<option selected="selected" value="' . $myrow['tagref'] . '">' . $myrow['tagid'].' - ' .$myrow['tagdescription'] . '</option>';
+                } else {
+                        echo '<option value="' . $myrow['tagref'] . '">' . $myrow['tagid'].' - ' .$myrow['tagdescription'] . '</option>';
+                }
+        }
+        echo '</select></td>
+                </tr>';
+
+
+
+	echo '</table>
 		<br />
 		<div class="centre">
 			<input tabindex="14" type="submit" name="Process" value="' . _('Accept') . '" />

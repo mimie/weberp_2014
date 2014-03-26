@@ -1,29 +1,25 @@
 <?php
+include('../myFunctions.php');
 include('connectDb.php');
-$sql="SELECT accountgroups.sectioninaccounts,
-                        accountgroups.groupname,
-                        accountgroups.parentgroupname,
-                        chartdetails.accountcode,
-                        chartmaster.accountname,
-                        chartmaster.glacode,
-                        Sum(CASE WHEN chartdetails.period='" . $_GET['ref'] . "' THEN chartdetails.actual ELSE 0 END) AS balancecfwd,
-                        Sum(CASE WHEN chartdetails.period='" . ($_GET['ref'] - 12) . "' THEN chartdetails.actual ELSE 0 END) AS lybalancecfwd,
-                        Sum(CASE WHEN chartdetails.period='" . ($_GET['ref'] - 1) . "' THEN chartdetails.actual ELSE 0 END) AS lmbalancecfwd
-                FROM chartmaster INNER JOIN accountgroups
-                ON chartmaster.group_ = accountgroups.groupname INNER JOIN chartdetails
-                ON chartmaster.accountcode= chartdetails.accountcode
-                WHERE accountgroups.pandl=0
-                AND (chartmaster.glacode LIKE '1-%' OR chartmaster.glacode LIKE '2-%' OR chartmaster.glacode LIKE '3-%')
-                GROUP BY accountgroups.groupname,
-                        chartdetails.accountcode,
-                        chartmaster.accountname,
-                        accountgroups.parentgroupname,
-                        accountgroups.sequenceintb,
-                        accountgroups.sectioninaccounts
-                ORDER BY accountgroups.sectioninaccounts,
-                        accountgroups.sequenceintb,
-                        accountgroups.groupname,
-                        chartdetails.accountcode";
+$sql="SELECT 
+                gltrans.typeno, 
+                gltrans.trandate, 
+                gltrans.account, 
+                chartmaster.accountname, 
+                chartmaster.normal_balance, 
+                chartmaster.glacode, 
+                chartmaster.group_ as groupname, 
+
+                SUM(CASE WHEN gltrans.periodno = '".$_POST['period']."' THEN gltrans.amount ELSE 0 END ) AS currentBalance,
+		SUM(CASE WHEN gltrans.periodno < '".$_POST['period']."' THEN gltrans.amount ELSE 0 END ) AS currentBeg, 
+                SUM(CASE WHEN gltrans.periodno = '".($_POST['period']-1)."' THEN gltrans.amount ELSE 0 END ) AS lastMonth,
+		SUM(CASE WHEN gltrans.periodno < '".($_POST['period']-1)."' THEN gltrans.amount ELSE 0 END ) AS lastBeg,  
+                SUM(CASE WHEN gltrans.periodno = '".($_POST['period']-12)."' THEN gltrans.amount ELSE 0 END ) AS lastYear
+
+                FROM gltrans INNER JOIN chartmaster ON chartmaster.accountcode = gltrans.account 
+                WHERE chartmaster.glacode LIKE '1-%' OR chartmaster.glacode LIKE '2-%' OR chartmaster.glacode LIKE '3-%'
+                GROUP BY gltrans.account 
+                ORDER BY chartmaster.glacode";
 
 if(isset($_GET['export']) &&($_GET['export']==1)){
  $fdate=date('m/d/Y-h:i:sa', time());
@@ -59,7 +55,7 @@ td.number {
 THE INSTITUTE OF INTERNAL AUDITORS PHILIPPINES, INC.<br>
 (A Non-Stock, Non-Profit Corporation)<br>
 BALANCE SHEET DETAILED<br>
-As of <?=$_GET['cbd']?>
+As of <?=date('F Y',strtotime($_POST['curDate']))?>
 </center>
 </p>
 
@@ -68,8 +64,8 @@ As of <?=$_GET['cbd']?>
 	<th><u>ACCT. NO.</u></th>
 	<th><u>ACCOUNTTITLE</u></th>
 	<th><u>LAST YEAR</u></th>
-	<th><u><?=$_GET['lbd']?></u></th>
-	<th><u><?=$_GET['cbd']?></u></th>
+	<th><u><?=date('F d',strtotime($_POST['lastDate']))?></u></th>
+	<th><u><?=date('F d',strtotime($_POST['curDate']))?></u></th>
 </tr>
 
 <?php
@@ -79,14 +75,19 @@ $total_lastyear=0;
 $total_lastmonth=0;
 $result=mysql_query($sql);
 while($row=mysql_fetch_array($result)){
+
+	$cur=$row['currentBalance']+$row['currentBeg'];
+        $las=$row['lastMonth']+$row['lastBeg'];
+
+
 if(($tempgroup!=$row['groupname'])&&($tempgroup!='')){
 	echo '<tr><td></td></tr>';
 	echo'<tr style="background-color:#ffff99">
 		<td><b>'.$tempgroup.'</b></td>
 		<td></td>
-		<td class="number">'.number_format($total_lastyear,2).'</td>
-		<td class="number">'.number_format($total_lastmonth,2).'</td>
-		<td class="number">'.number_format($totalamt,2).'</td>
+		<td class="number">'.reverse_sign($total_lastyear).'</td>
+		<td class="number">'.reverse_sign($total_lastmonth).'</td>
+		<td class="number">'.reverse_sign($totalamt).'</td>
 	</tr>';
 	echo '<tr><td></td></tr>';
 	$tempgroup=$row['groupname'];
@@ -96,18 +97,20 @@ if(($tempgroup!=$row['groupname'])&&($tempgroup!='')){
 }else{
 	$tempgroup=$row['groupname'];
 }
+
+
 ?>
 <tr>
 	<td><?=$row['glacode']?></td>
 	<td><?=$row['accountname']?></td>
-	<td class="number"><?=number_format($row['lybalancecfwd'],2)?></td>
-	<td class="number"><?=number_format($row['lmbalancecfwd'],2)?></td>
-	<td class="number"><?=number_format($row['balancecfwd'],2)?></td>
+	<td class="number"><?=reverse_sign($row['lastYear'])?></td>
+	<td class="number"><?=reverse_sign($las)?></td>
+	<td class="number"><?=reverse_sign($cur)?></td>
 </tr>
 <?php 
-	$total_lastyear=$total_lastyear+$row['lybalancecfwd'];
-	$total_lastmonth=$total_lastmonth+$row['lmbalancecfwd'];
-	$totalamt=$totalamt+$row['balancecfwd'];
+	$total_lastyear=$total_lastyear+$row['lastYear'];
+	$total_lastmonth=$total_lastmonth+$las;
+	$totalamt=$totalamt+$cur;
 } ?>
 </table>
 

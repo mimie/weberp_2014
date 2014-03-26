@@ -11,6 +11,11 @@ $BookMark = 'BankAccountPayments';
 $suppName=$_GET['suppName'];
 $vouchnum=$_POST['VouchNum'];
 $checkdate=$_POST['checkdate'];
+$checkno=$_POST['Cheque'];
+$bankacc=$_POST['BankAccount'];
+$narrative=$_POST['Narrative'];
+$invoice=$_POST['Invoice'];
+	
 include('includes/header.inc');
 
 include('includes/SQL_CommonFunctions.inc');
@@ -280,7 +285,7 @@ if (isset($_POST['CommitBatch'])){
 	$myrow=DB_fetch_row($result);
 
 	// first time through commit if supplier cheque then print it first
-	if ((!isset($_POST['ChequePrinted']))
+	/*if ((!isset($_POST['ChequePrinted']))
 			AND (!isset($_POST['PaymentCancelled']))
 			AND ($myrow[0] == 1)) {
 		// it is a supplier payment by cheque and haven't printed yet so print cheque
@@ -300,8 +305,8 @@ if (isset($_POST['CommitBatch'])){
 		echo '</div>
 			</form>';
 
-	} else {
-
+	} else {*/
+	if(true){
 		//Start a transaction to do the whole lot inside
 
 		$result = DB_Txn_Begin($db);
@@ -673,7 +678,7 @@ if (isset($_POST['CommitBatch'])){
 			echo '<br /><a href="' . $rootpath . '/Payments.php?SupplierID=' . $LastSupplier . '">' .
 				_('Enter another Payment for') . ' ' . $myrow['suppname'] . '</a>';
 		} else {
-			echo '<br><br><a href="' . $rootpath . '/print/printCV.php?voucherNum='.$aa.'" target="blank">Print Check Voucher</a><br>';
+			echo '<br><br><a href="' . $rootpath . '/print/printCV.php?voucherNum='.$aa.'&amp;Uname='.$Uname.'" target="blank">Print Check Voucher</a><br>';
 			echo '<br /><a href="' .$rootpath. '/SelectSupplierPay.php">' . _('Enter another General Ledger Payment') . '</a><br />';
 		}
 	}
@@ -683,7 +688,15 @@ if (isset($_POST['CommitBatch'])){
 
 } elseif (isset($_GET['Delete'])){
 	/* User hit delete the receipt entry from the batch */
+	//print_r($_SESSION['PaymentDetail'.$identifier]);
+	echo $_SESSION['PaymentDetail'.$identifier]->Amount;
 	$_SESSION['PaymentDetail' . $identifier]->Remove_GLItem($_GET['Delete']);
+	$checkdate=$_GET['checkdate'];
+	$suppname=$_GET['suppName'];
+	$narrative=$_GET['narrative'];
+	$bankacc=$_GET['bankacc'];
+	$checkno=$_GET['checkno'];
+	$invoice=$_GET['invoice'];
 
 } elseif (isset($_POST['Process']) AND !$BankAccountEmpty){ //user hit submit a new GL Analysis line into the payment
 
@@ -692,7 +705,7 @@ if (isset($_POST['CommitBatch'])){
 
 	if (is_numeric($_POST['GLManualCode'])){
 
-		$SQL = "SELECT accountname
+		$SQL = "SELECT accountname,group_
 			FROM chartmaster
 			WHERE accountcode='" . $_POST['GLManualCode'] . "'";
 
@@ -705,8 +718,14 @@ if (isset($_POST['CommitBatch'])){
 		    prnMsg( _('The Cheque/Voucher number has already been used') . ' - ' . _('This GL analysis item could not be added'),'error');
 #	print_r($ChequeNoSQL);
 }*/ else {
-	if($_POST["formYou"]==$_SESSION['formMe']){
 	$myrow = DB_fetch_array($Result);
+	//die($_POST['Tag']);
+	if($_POST["formYou"]==$_SESSION['formMe']){
+	//echo $myrow['group_'];
+	if($myrow['group_']=='Operating Expense' && $_POST['Tag']==0){
+		 prnMsg('Please select Tag when you use an Account under Expense group','warn');
+	}else{
+	//$myrow = DB_fetch_array($Result);
 	$_SESSION['PaymentDetail' . $identifier]->add_to_glanalysis(filter_number_format($_POST['GLAmount']),
 			$_POST['GLNarrative'],
 			$_POST['GLManualCode'],
@@ -715,6 +734,8 @@ if (isset($_POST['CommitBatch'])){
 			$_POST['Cheque']);
 	unset($_POST['GLManualCode']);
 	}
+
+	}
 	
 }
 } else if (DB_num_rows($ChequeNoResult)!=0 AND $_POST['Cheque']!=''){
@@ -722,15 +743,18 @@ if (isset($_POST['CommitBatch'])){
 } else if ($_POST['GLCode'] == '') {
 	prnMsg( _('No General Ledger code has been chosen') . ' - ' . _('so this GL analysis item could not be added'),'warn');
 } else {
-	$SQL = "SELECT accountname FROM chartmaster WHERE accountcode='" . $_POST['GLCode'] . "'";
+	$SQL = "SELECT accountname,group_ FROM chartmaster WHERE accountcode='" . $_POST['GLCode'] . "'";
 	$Result=DB_query($SQL,$db);
 	$myrow=DB_fetch_array($Result);
+	echo $myrow['group_'];
 	$_SESSION['PaymentDetail' . $identifier]->add_to_glanalysis(filter_number_format($_POST['GLAmount']),
 			$_POST['GLNarrative'],
 			$_POST['GLCode'],
 			$myrow['accountname'],
 			$_POST['Tag'],
 			$_POST['Cheque']);
+			//Here oh
+
 }
 $_SESSION["formMe"]=microtime();  //md5(rand(0,1000000));  //HereSession
 /*Make sure the same receipt is not double processed by a page refresh */
@@ -783,7 +807,7 @@ if (isset($_POST['BankAccount']) AND $_POST['BankAccount']!='') {
 	}
 }
 
-echo '<form action="' . htmlspecialchars($_SERVER['PHP_SELF'] . '?identifier=' . $identifier . '&suppName='.$suppName. '&supplierID='.$_GET['supplierID']) . '&checkdate='.$checkdate.'&cv='.$_POST['VouchNum'].'" method="post">';
+echo '<form action="' . htmlspecialchars($_SERVER['PHP_SELF'] . '?identifier=' . $identifier . '&suppName='.$suppName. '&supplierID='.$_GET['supplierID']) . '&checkdate='.$checkdate.'&cv='.$_POST['VouchNum'].'&amp;PaymentTotal='.$_SESSION['PaymentTotal'].'" method="post">';
 echo '<div>';
 echo '<input type="hidden" name="FormID" value="' . $_SESSION['FormID'] . '" />';
 echo '<input type="hidden" name="formYou" value="'.$_SESSION["formMe"].'" />';
@@ -830,7 +854,8 @@ $SQL = "SELECT bankaccountname,
 		echo '<option value=""></option>';
 		while ($myrow=DB_fetch_array($AccountsResults)){
 			/*list the bank account names */
-			if (isset($_POST['BankAccount']) AND $_POST['BankAccount']==$myrow['accountcode']){
+			//if (isset($_POST['BankAccount']) AND $_POST['BankAccount']==$myrow['accountcode']){
+			if (isset($bankacc) AND $bankacc==$myrow['accountcode']){
 				echo '<option selected="selected" value="' . $myrow['accountcode'] . '">' . $myrow['bankaccountname'] . ' - ' . $myrow['currcode'] . '</option>';
 			} else {
 				echo '<option value="' . $myrow['accountcode'] . '">' . $myrow['bankaccountname'] . ' - ' . $myrow['currcode'] . '</option>';
@@ -978,9 +1003,9 @@ if (!isset($_POST['ChequeNum'])) {
 
 echo '<tr>
 		<td>' . _('Cheque Number') . ':</td>
-		<td><input type="text" name="Cheque" maxlength="50" size="17" value="' . $_POST['Cheque'] . '" /> ' . _('(if using pre-printed stationery)') . '</td>
+		<td><input type="text" name="Cheque" maxlength="50" size="17" value="' . $checkno . '" /> ' . _('(if using pre-printed stationery)') . '</td>
 	</tr>';
-
+//echo $checkdate;
 echo '<tr>
                 <td>' . _('Cheque Date') . ':</td>
                 <td><input type="text" name="CheckDate" class="date" alt="'.$_SESSION['DefaultDateFormat'].'" maxlength="10" size="11" onchange="isDate(this, this.value, '."'".$_SESSION['DefaultDateFormat']."'".')" value="' . $checkdate . '" /></td>
@@ -990,7 +1015,7 @@ echo '<tr>
 
 echo '<tr>
                 <td>' . _('Vendor Invoice No.') . ':</td>
-                <td><input type="text" name="Invoice" maxlength="50" size="17" value="' . $_POST['Invoice'] . '" /></td>
+                <td><input type="text" name="Invoice" maxlength="50" size="17" value="' . $invoice . '" /></td>
         </tr>';
 
 if (!isset($_POST['Narrative'])) {
@@ -999,7 +1024,7 @@ if (!isset($_POST['Narrative'])) {
 
 echo '<tr>
 		<td>' . _('Reference / Narrative') . ':</td>
-		<td colspan="2"><input type="text" name="Narrative" maxlength="50" size="55" value="' . $_POST['Narrative'] . '" />  ' . _('(Max. length 50 characters)') . '</td>
+		<td colspan="2"><input type="text" name="Narrative" size="55" value="' . $narrative . '" /> </td>
 	</tr>
 
 
@@ -1020,26 +1045,51 @@ if ($_SESSION['CompanyRecord']['gllink_creditors']==1 AND $_SESSION['PaymentDeta
 	echo '<tr><th colspan="2"><h3>' . _('General Ledger Payment Analysis Entry') . '</h3></th></tr>';
 
 	//Select the Tag
-	echo '<tr>
+	/*echo '<tr>
 			<td>' . _('Select Tag') . ':</td>
-			<td><select name="Tag">';
+			<td><select name="Tag">';*/
 
+	echo '<tr>
+		<td>' . _('Filter Tag (<i>Enter a partial name or ID</i>)') . ':</td>
+                <td>
+                        <input type="text" name="tagKey"/>
+                        <input type="submit" name="searchTag" value="SearchTag"/><br>
+		</td></tr>
+		<tr>
+			<td>' . _('Select Tag') . ':</td>
+                        <td><select name="Tag">';
+
+
+if(isset($_POST['searchTag'])){
+$SQL = "SELECT tagref,
+                tagid,
+                                tagdescription
+                FROM tags
+                WHERE tagid LIKE '%".$_POST['tagKey']."%'
+		AND status='Open'
+                OR tagdescription LIKE '%".$_POST['tagKey']."%'
+                ORDER BY tagid";
+
+}else{
 	$SQL = "SELECT tagref,
+			tagid,
 				tagdescription
 			FROM tags
-			ORDER BY tagref";
-
+			WHERE status='Open'
+			ORDER BY tagid";
+}
 	$result=DB_query($SQL,$db);
 	echo '<option value="0"></option>';
 	while ($myrow=DB_fetch_array($result)){
 		if (isset($_POST['Tag']) AND $_POST['Tag']==$myrow['tagref']){
-			echo '<option selected="selected" value="' . $myrow['tagref'] . '">' . $myrow['tagref'].' - ' .$myrow['tagdescription'] . '</option>';
+			echo '<option selected="selected" value="' . $myrow['tagref'] . '">' . $myrow['tagid'].' - ' .$myrow['tagdescription'] . '</option>';
 		} else {
-			echo '<option value="' . $myrow['tagref'] . '">' . $myrow['tagref'].' - ' .$myrow['tagdescription'] . '</option>';
+			echo '<option value="' . $myrow['tagref'] . '">' . $myrow['tagid'].' - ' .$myrow['tagdescription'] . '</option>';
 		}
 	}
 	echo '</select></td>
 		</tr>';
+
 // End select Tag
 
 	/*now set up a GLCode field to select from avaialble GL accounts */
@@ -1080,18 +1130,34 @@ if ($_SESSION['CompanyRecord']['gllink_creditors']==1 AND $_SESSION['PaymentDeta
 				<input type="submit" name="UpdateCodes" value="Select" /></td>
 				</tr>';
 	}
+	
+	echo '<tr><td>' . _('Filter Account ') . '(<i>Enter a partial name or ID</i>):</td>';
+	echo '<td><input type="text" name="glKey" size="30"/>
+          <input type="submit" value="SearchGL" name="searchGL"/></tr>';
+
 
 	if (isset($_POST['GLGroup']) AND $_POST['GLGroup']!='') {
 		$SQL = "SELECT accountcode,
-						accountname
+						accountname,
+						glacode
 				FROM chartmaster
 				WHERE group_='".$_POST['GLGroup']."'
-				ORDER BY accountcode";
-	} else {
+				ORDER BY glacode";
+	}elseif(isset($_POST['searchGL'])){
+		$SQL="SELECT accountcode,
+                        accountname,
+                        glacode
+                FROM chartmaster
+                WHERE glacode LIKE '%".$_POST['glKey']."%'
+                OR accountname LIKE '%".$_POST['glKey']."%'
+                ORDER BY glacode";
+
+	}else {
 		$SQL = "SELECT accountcode,
-						accountname
+						accountname,
+						glacode
 				FROM chartmaster
-				ORDER BY accountcode";
+				ORDER BY glacode";
 	}
 	
 	
@@ -1107,22 +1173,20 @@ if ($_SESSION['CompanyRecord']['gllink_creditors']==1 AND $_SESSION['PaymentDeta
 		echo '<option value=""></option>';
 		while ($myrow=DB_fetch_array($result)){
 			if (isset($_POST['GLCode']) AND $_POST['GLCode']==$myrow['accountcode']){
-				echo '<option selected="selected" value="' . $myrow['accountcode'] . '">' . $myrow['accountcode'] . ' - ' . htmlspecialchars($myrow['accountname'],ENT_QUOTES,'UTF-8',false) . '</option>';
+				echo '<option selected="selected" value="' . $myrow['accountcode'] . '">' . $myrow['glacode'] . ' - ' . htmlspecialchars($myrow['accountname'],ENT_QUOTES,'UTF-8',false) . '</option>';
 			} else {
-				echo '<option value="' . $myrow['accountcode'] . '">' . $myrow['accountcode'] . ' - ' . htmlspecialchars($myrow['accountname'],ENT_QUOTES,'UTF-8',false) . '</option>';
+				echo '<option value="' . $myrow['accountcode'] . '">' . $myrow['glacode'] . ' - ' . htmlspecialchars($myrow['accountname'],ENT_QUOTES,'UTF-8',false) . '</option>';
 			}
 		}
 		echo '</select></td></tr>';
 	}
 if (isset($_POST['GLManualCode'])) {
                 echo '<tr>
-                                <td>' . _('GL Account Code') . ':</td>
-                                <td><input type="text" class="number" name="GLManualCode" maxlength="12" size="12" onchange="return inArray(this, GLCode.options,'.    "'".'The account code '."'".'+ this.value+ '."'".' doesnt exist'."'".')"' . ' value="'. $_POST['GLManualCode'] .'"   /></td>
+                                <td><input type="hidden" class="number" name="GLManualCode" maxlength="12" size="12" onchange="return inArray(this, GLCode.options,'.    "'".'The account code '."'".'+ this.value+ '."'".' doesnt exist'."'".')"' . ' value="'. $_POST['GLManualCode'] .'"   /></td>
                         </tr>';
         } else {
                 echo '<tr>
-                                <td>' . _('GL Account Code') . ':</td>
-                                <td><input type="text" class="number" name="GLManualCode" maxlength="12" size="12" onchange="return inArray(this, GLCode.options,'.    "'".'The account code '."'".'+ this.value+ '."'".' doesnt exist'."'".')" /></td></tr>';
+                                <td><input type="hidden" class="number" name="GLManualCode" maxlength="12" size="12" onchange="return inArray(this, GLCode.options,'.    "'".'The account code '."'".'+ this.value+ '."'".' doesnt exist'."'".')" /></td></tr>';
         }
 
 	/*echo '<tr>
@@ -1187,13 +1251,29 @@ if (isset($_POST['GLManualCode'])) {
 			echo '<tr>
 				<td>' . $PaymentItem->Cheque . '</td>
 				<td class="number">' . locale_number_format($PaymentItem->Amount,$_SESSION['PaymentDetail' . $identifier]->CurrDecimalPlaces) . '</td>
-				<td>' . $PaymentItem->GLCode . ' - ' . $PaymentItem->GLActName . '</td>
+				<td>' . $PaymentItem->GLActName . '</td>
 				<td>' . stripslashes($PaymentItem->Narrative)  . '</td>
 				<td>' . $PaymentItem->Tag . ' - ' . $TagName . '</td>
-				<td><a href="' . htmlspecialchars($_SERVER['PHP_SELF'] . '?identifier=' . $identifier) . '&amp;Delete=' . $PaymentItem->ID . '&supplierID='.$_GET['supplierID'].'" onclick="return confirm(\'' . _('Are you sure you wish to delete this payment analysis item?') . '\');">' . _('Delete') . '</a></td>
+				<td><a 
+					href="' . htmlspecialchars($_SERVER['PHP_SELF'] . '?identifier=' . $identifier) . 
+					'&amp;Delete=' . $PaymentItem->ID .
+					'&amp;suppName='.$suppName. 
+					'&amp;supplierID='.$_GET['supplierID'] . 
+					'&amp;checkdate='.$checkdate.
+					'&amp;cv='.$_POST['VouchNum'].
+					'&amp;bankacc='.$_POST['BankAccount'].
+					'&amp;narrative='.$_POST['Narrative'].
+					'&amp;checkno='.$_POST['Cheque'].
+					'&amp;invoice='.$_POST['Invoice'].'" 
+				
+				onclick="return confirm(\'' . _('Are you sure you wish to delete this payment analysis item?') . '\');">
+				' . _('Delete') . '
+				</a></td>
+	
 				</tr>';  //Delete Here
 			$PaymentTotal += $PaymentItem->Amount;
 		}
+		$_SESSION['PaymentTotal']=$PaymentTotal;
 		echo '<tr>
 				<td></td>
 				<td class="number"><b>' . locale_number_format($PaymentTotal,$_SESSION['PaymentDetail' . $identifier]->CurrDecimalPlaces) . '</b></td>
@@ -1204,7 +1284,9 @@ if (isset($_POST['GLManualCode'])) {
 			</table>
 			<br />';
 			
-		echo '<div class="centre"><input type="submit" name="CommitBatch" value="' . _('Accept and Process Payment') . '" /></div>';
+		echo '<div class="centre"><input type="submit" name="CommitBatch" value="' . _('Accept and Process Payment') . '"  
+
+			onclick="return confirm(\'' . _('Are you sure you want to commit this Batch with total amount of '.number_format($PaymentTotal,2).'php?') . '\');"/></div>';
 	}
 
 } else {

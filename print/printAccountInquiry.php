@@ -37,7 +37,7 @@ $sql= "SELECT type,
                 AND periodno>= '" . $_POST['FirstPeriod'] . "'
                 AND periodno<= '" . $_POST['LastPeriod'] . "'";
 
-if($_POST['TagFrom']!=''){
+if($_POST['TagFrom']!=0){
                $sql=$sql." AND tag BETWEEN '".$_POST['TagFrom']."' AND '".$_POST['TagTo']."'";
 }
                $sql=$sql." ORDER BY periodno, gltrans.trandate, counterindex";
@@ -80,7 +80,7 @@ Account Inquiry
         <center>
         Institute of International Auditors Phils.<br>
         GL ACCOUNT INQUIRY<br>
-        From<?=$accountFrom[0]?> to <?=$accountTo[0]?>
+        From <?=$accountFrom[0]?> to <?=$accountTo[0]?>
         </center>
 </p>
 
@@ -146,7 +146,7 @@ $totalnet=$totalnet+$myNet;
 }
 ?>
 <tr>
-  <td colspan="3"></td>
+  <td colspan="4"></td>
   <td><b>Total</b></td>
   <td><?=number_format($totaldb,2)?></td>
   <td><?=number_format($totalcr,2)?></td>

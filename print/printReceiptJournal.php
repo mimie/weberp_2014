@@ -75,23 +75,36 @@ td.number {
 <p>
 	<center>
 	Institute of International Auditors Phils.<br>
-	Cash Receipts Journal Entry
+	Cash Receipts Journal Entry<br>
+	From <?=date('m/d/Y',strtotime($_POST['date1']))?> To <?=date('m/d/Y',strtotime($_POST['date2']))?>
 	</center>
 </p>
+
+
+<table class="style4">
+        <tr>
+                <td><b>Date Printed:</b></td>
+                <td><?=date('m/d/Y h:i A')?></td>
+        </tr><tr>
+                <td><b>Printed By:</b></td>
+                <td><?=$_GET['uname']?></td>
+        </tr>
+</table>
+
 
 <table class="style4">
 
 <tr>
-	<th>OR/AR No.</th>
-	<th>DCT No.</th>
-	<th>Date</th>
-	<th>Customer Name</th>
-	<th>Narrative</th>
-	<th>Account Code</th>
-	<th>Account Description</th>
-	<th>Debit</th>
-	<th>Credit</th>
-	<th>GL-Tags</th>
+	<th><u>OR/AR No.</u></th>
+	<th><u>DCT No.</u></th>
+	<th><u>Date</u></th>
+	<th><u>Customer Name</u></th>
+	<th><u>Narrative</u></th>
+	<th><u>Account Code</u></th>
+	<th><u>Account Description</u></th>
+	<th><u>Debit</u></th>
+	<th><u>Credit</u></th>
+	<th><u>GL-Tags</u></th>
 
 </tr>
 

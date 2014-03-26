@@ -361,17 +361,21 @@ echo '<tr>
 			<select name="tag">';
 if(isset($_POST['searchTag'])){
 $SQL = "SELECT tagref,
+		tagid,
                                 tagdescription
                 FROM tags
-		WHERE tagref LIKE '%".$_POST['tagKey']."%'
-		OR tagdescription LIKE '%".$_POST['tagKey']."%'
-                ORDER BY tagref";
+		WHERE (tagid LIKE '%".$_POST['tagKey']."%'
+		OR tagdescription LIKE '%".$_POST['tagKey']."%')
+		AND status='Open'
+                ORDER BY tagid";
 
 }else{
 $SQL = "SELECT tagref,
+		tagid,
 				tagdescription
 		FROM tags
-		ORDER BY tagref";
+		WHERE status='Open'
+		ORDER BY tagid";
 }
 print_r($_POST);
 //die($SQL);
@@ -381,7 +385,7 @@ while ($myrow=DB_fetch_array($result)){
 	if (isset($_POST['tag']) and $_POST['tag']==$myrow['tagref']){
 		echo '<option selected="selected" value="' . $myrow['tagref'] . '">' . $myrow['tagref'].' - ' .$myrow['tagdescription'].'</option>';
 	} else {
-		echo '<option value="' . $myrow['tagref'] . '">' . $myrow['tagref'].' - ' .$myrow['tagdescription'] . '</option>';
+		echo '<option value="' . $myrow['tagref'] . '">' . $myrow['tagid'].' - ' .$myrow['tagdescription'] . '</option>';
 	}
 }
 echo '</select></td>';
@@ -402,7 +406,7 @@ $sql="SELECT accountcode,
                         glacode
                 FROM chartmaster
 		WHERE glacode LIKE '%".$_POST['glKey']."%'
-		OR accountname LIKE '%".$_POST['glKey']."% '
+		OR accountname LIKE '%".$_POST['glKey']."%'
                 ORDER BY glacode";
 
 }else{
@@ -412,7 +416,7 @@ $sql="SELECT accountcode,
 		FROM chartmaster
 		ORDER BY glacode";
 }
-
+//die($sql);
 $result=DB_query($sql, $db);
 echo '<select name="GLCode" onchange="return assignComboToInput(this,'.'GLManualCode'.')">';
 echo '<option value="">' . _('Select a general ledger account code') . '</option>';

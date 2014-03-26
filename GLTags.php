@@ -30,7 +30,8 @@ if (isset($_GET['SelectedTag'])) {
 					budgetRevenue,
 					budgetCost,
 					venue,
-					speaker 
+					speaker,
+					status
 				FROM tags 
 				WHERE tagref='".$_GET['SelectedTag']."'";
 			
@@ -46,6 +47,7 @@ if (isset($_GET['SelectedTag'])) {
 		//$profit=$budget-$cost;
 		$venue=$myrow['venue'];
 		$speaker=$myrow['speaker'];
+		$status=$myrow['status'];
 	}
 } else {
 	$Description='';
@@ -55,7 +57,7 @@ if (isset($_GET['SelectedTag'])) {
 
 if (isset($_POST['submit'])) {
 	$tgid=$_POST['Segment1'].'-'.$_POST['Segment2'].'-'.$_POST['Segment3'];
-	$sql = "INSERT INTO tags(tagdescription,tagid,budgetRevenue,startdate,enddate,budgetCost,venue,speaker)
+	$sql = "INSERT INTO tags(tagdescription,tagid,budgetRevenue,startdate,enddate,budgetCost,venue,speaker,status)
 					values('" . $_POST['Description'] . "',
 								'" . $tgid . "',
 								'".$_POST['Budget']."',
@@ -63,7 +65,8 @@ if (isset($_POST['submit'])) {
 								'".FormatDateForSQL($_POST['EndDate'])."',
 								'".$_POST['Cost']."',
 								'".$_POST['Venue']."',
-								'".$_POST['Speaker']."'
+								'".$_POST['Speaker']."',
+								'".$_POST['Status']."'
 								)";
 	//die($sql);
 	$result= DB_query($sql,$db);
@@ -83,7 +86,8 @@ if (isset($_POST['update'])) {
 					enddate='".FormatDateForSQL($_POST['EndDate'])."',
 					budgetCost='".$_POST['Cost']."',
 					venue='".$_POST['Venue']."',
-					speaker='".$_POST['Speaker']."'
+					speaker='".$_POST['Speaker']."',
+					status='".$_POST['Status']."'
 					WHERE tagref='".$_POST['reference']."'";
 	$result= DB_query($sql,$db);
 	prnMsg(_('The selected tag has been updated'),'success');
@@ -98,7 +102,7 @@ echo '<form method="post" action="' . htmlspecialchars($_SERVER['PHP_SELF'],ENT_
 echo '<div>';
 echo '<input type="hidden" name="FormID" value="' . $_SESSION['FormID'] . '" />';
 echo '<br />
-	<table>
+	<table border=1>
 	<tr>
 		<td>'. _('Tag ID') . '</td><td>';
 $GLSeg=explode("-",$tagId);
@@ -141,12 +145,9 @@ echo	'</select>
 				<input type="text" size="3" maxlength="3" name="Segment2" value="'.$s2.'" />
 				<input type="text" size="4" maxlength="4" name="Segment3display" value="'.$s3.'" disabled />
 				 <input type="hidden" size="4" maxlength="4" name="Segment3" value="'.$s3.'"  />
-				<input type="submit" name="ok" value="">
-	</td>		
-	</tr>';
-echo '<tr>
-	<td></td>
-	<td> <a href="'.$rootpath.'/GLTagS1.php">Add New Segment1 Code</a> </td>
+				<input type="submit" name="ok" value="">';
+
+echo '	<a href="'.$rootpath.'/GLTagS1.php">Add New Segment1 Code</a> </td>
 	</tr>';
 
 echo '<tr>
@@ -196,7 +197,21 @@ echo '<tr>
   ';
 
 echo '<tr>
-		<td><input type="hidden" name="reference" value="'.$_GET['SelectedTag'].'" />';
+	<td>'._('Status').'</td>
+		<td><select name="Status">';
+	if($status=='Open'){
+		echo '<option value="Open">Open</option>
+		     <option value="Close">Close</option>';
+	}else{
+		echo '<option value="Open">Open</option>
+                      <option selected="selected" value="Close">Close</option>';	
+	}
+echo '		    </select>
+
+  ';
+
+echo '<tr>	<td></td>
+		<td class="number"><input type="hidden" name="reference" value="'.$_GET['SelectedTag'].'" />';
 
 
 
@@ -212,24 +227,55 @@ if (isset($_GET['Action']) AND $_GET['Action']=='edit') {
 echo '</td>
 	</tr>
 	</table>
-	<br />
+	<br />';
+
+ echo '<table border="1">
+                <tr><th colspan=3 width=400><b>Filter</b></th></tr>
+                <tr>
+                        <td>Enter partial code OR name:</td>
+                        <td><input type="text" name="TextSearch" size="30"/></td>
+                        <td><input type="submit" name="Search"  value="Search" ></td>
+                </tr>
+
+
+        </table> <br>';
+
+
+
+echo '
     </div>
 	</form>
 	<table class="selection">
 	<tr>
-		<th>'. _('Tag Ref') .'</th>
 		<th>'. _('Tag ID') .'</th>
 		<th>'. _('Description'). '</th>
 		<th>'. _('Starting') .'</th>
-    <th>'. _('Ending') .'</th>
-    <th>'. _('Budget Revenue'). '</th>
+    		<th>'. _('Ending') .'</th>
+    		<th>'. _('Budget Revenue'). '</th>
 		<th>'. _('Budget Cost'). '</th>
 		<th>'. _('Budget Net Profit'). '</th>
 		<th>'. _('Venue').'</th>
 		<th>'. _('Speaker').'</th>
+		<th>'. _('Status').'</th>
 		<th colspan="2">'. _(' ').'</th>
 	</tr>';
 
+if(isset($_POST['TextSearch'])){
+$sql="SELECT tagref, 
+                        tagdescription,
+                        tagid,
+                        startdate,
+                        enddate,
+                        budgetRevenue,
+                        budgetCost,
+                        venue,
+                        speaker,
+                        status
+                FROM tags
+		WHERE tagdescription LIKE '%".$_POST['TextSearch']."%' OR
+                tagid LIKE '%".$_POST['TextSearch']."%'
+		ORDER BY tagid";
+}else{
 $sql="SELECT tagref, 
 			tagdescription,
 			tagid,
@@ -238,16 +284,26 @@ $sql="SELECT tagref,
 			budgetRevenue,
 			budgetCost,
 			venue,
-			speaker
+			speaker,
+			status
 		FROM tags 
-		ORDER BY tagref";
-		
+		ORDER BY tagid";
+}		
 $result= DB_query($sql,$db);
 
+$k=0;
 while ($myrow = DB_fetch_array($result,$db)){
 $profit=$myrow['budgetRevenue']-$myrow['budgetCost'];
-	echo '<tr>
-			<td>' . $myrow['tagref'] . '</td>
+
+ 		if ($k==1){
+                        $rowclass='<tr class="EvenTableRows">';
+                        $k=0;
+                } else {
+                        $rowclass= '<tr class="OddTableRows">';
+                        $k=1;
+                }
+
+	echo $rowclass.'
 			<td>' . $myrow['tagid'] . '</td>
 			<td>' . $myrow['tagdescription'] . '</td>
 			<td>' . $myrow['startdate'] . '</td>
@@ -257,6 +313,7 @@ $profit=$myrow['budgetRevenue']-$myrow['budgetCost'];
 			<td class="number">' . number_format($profit,2). '</td>
 			<td>'.$myrow['venue'].'</td>
 			<td>'.$myrow['speaker'].'</td>
+			<td>'.$myrow['status'].'</td>
 			<td><a href="' . htmlspecialchars($_SERVER['PHP_SELF'],ENT_QUOTES,'UTF-8') . '?SelectedTag=' . $myrow['tagref'] . '&amp;Action=edit">' . _('Edit') . '</a></td>
 			<td><a href="' . htmlspecialchars($_SERVER['PHP_SELF'],ENT_QUOTES,'UTF-8') . '?SelectedTag=' . $myrow['tagref'] . '&amp;Action=delete" onclick="return confirm(\'' . _('Are you sure you wish to delete this GL tag?') . '\');">' . _('Delete') . '</a></td>
 		</tr>';

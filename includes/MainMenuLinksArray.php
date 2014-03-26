@@ -376,7 +376,7 @@ $MenuItems['GL']['Reports']['Caption'] = array (_('Trial Balance'),
 												_('BIR Form 2307')
 												);
 
-$MenuItems['GL']['Reports']['URL'] = array ('/GLTrialBalance.php',
+$MenuItems['GL']['Reports']['URL'] = array ('/TBalance.php',
 											'/GLAccountInquiry.php',
 											'/GLAccountReport.php',
 											'/GLAccountCSV.php',
@@ -390,7 +390,7 @@ $MenuItems['GL']['Reports']['URL'] = array ('/GLTrialBalance.php',
 											'/PDFChequeListing.php',
 											'/DailyBankTransactions.php',
 											'/GLProfit_Loss.php',
-											'/GLBalanceSheet.php',
+											'/BSheet.php',
 											'/GLTagProfit_Loss.php',
 											'/Tax.php',
 											'/FormBIR.php'

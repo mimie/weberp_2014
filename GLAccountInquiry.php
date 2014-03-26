@@ -42,7 +42,7 @@ $DefaultPeriodDate = Date ('Y-m-d', Mktime(0,0,0,Date('m'),0,Date('Y')));
 echo '<table class="selection">';
 echo '<tr><th colspan="2"><b>Accounts</b></th></tr>';
 echo '<tr><td>'._('Account From').':</td><td><select name="Account">';
-$sql = "SELECT accountcode, accountname, glacode FROM chartmaster ORDER BY accountcode";
+$sql = "SELECT accountcode, accountname, glacode FROM chartmaster ORDER BY glacode";
 $Account = DB_query($sql,$db);
 while ($myrow=DB_fetch_array($Account,$db)){
 	if($myrow['accountcode'] == $SelectedAccount){
@@ -56,7 +56,7 @@ echo '</select></td></tr>';
 
 echo '<tr><td>'._('Account To').':</td><td><select name="AccountTo">';
 
-$sql = "SELECT accountcode, accountname, glacode FROM chartmaster ORDER BY accountcode";
+$sql = "SELECT accountcode, accountname, glacode FROM chartmaster ORDER BY glacode";
 $Account = DB_query($sql,$db);
 while ($myrow=DB_fetch_array($Account,$db)){
         if($myrow['accountcode'] == $SelectedAccount2){
@@ -326,7 +326,7 @@ if (isset($_POST['Show'])){
 		$PeriodTotal += $myrow['amount'];
 
 
-		$db=0;
+		$dr=0;
 		$cr=0;
 
 		if($myrow['normal_balance']=='DR'){
@@ -334,16 +334,16 @@ if (isset($_POST['Show'])){
                                         $cr=$myrow['amount']*-1;
                                         $totalcr=$totalcr+$cr;
                                 }else{
-                                        $db=$myrow['amount'];
-                                        $totaldb=$totaldb+$db;
+                                        $dr=$myrow['amount'];
+                                        $totaldb=$totaldb+$dr;
                                 }
                 }else{
                                 if($myrow['amount']<0){
                                 $cr=$myrow['amount']*-1;
                                 $totalcr=$totalcr+$cr;
                                 }else{
-                                $db=$myrow['amount'];
-                                $totaldb=$totaldb+$db;
+                                $dr=$myrow['amount'];
+                                $totaldb=$totaldb+$dr;
                                 }
 
                 }
@@ -359,9 +359,10 @@ if (isset($_POST['Show'])){
 		$FormatedTranDate = ConvertSQLDate($myrow['trandate']);
 		$URL_to_TransDetail = $rootpath . '/GLTransInquiry.php?' . SID . '&amp;TypeID=' . $myrow['type'] . '&amp;TransNo=' . $myrow['typeno'];
 
-		$tagsql="SELECT tagdescription FROM tags WHERE tagref='".$myrow['tag'] . "'";
+		$tagsql="SELECT tagdescription FROM tags WHERE tagref=".$myrow['tag'];
 		$tagresult=DB_query($tagsql,$db);
 		$tagrow = DB_fetch_array($tagresult);
+		
 		if ($tagrow['tagdescription']=='') {
 			$tagrow['tagdescription']=_('None');
 		}
@@ -379,7 +380,7 @@ if (isset($_POST['Show'])){
 			$URL_to_TransDetail,
 			$myrow['doc_ref'].'-'.$myrow['voucherno'],
 			$FormatedTranDate,
-			number_format($db,2),
+			number_format($dr,2),
 			number_format($cr,2),
 			$myrow['narrative'],
 			locale_number_format($RunningTotal,$_SESSION['CompanyRecord']['decimalplaces']),

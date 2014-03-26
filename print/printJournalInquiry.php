@@ -75,9 +75,21 @@ Journal Inquiry
 	<center>
 	Institute of International Auditors Phils.<br>
 	JOURNAL VOUCHER ADJUSTMENT<br>
-	From<?=$_POST['date1']?> to <?=$_POST['date2']?>
+        From <?=date('m/d/Y',strtotime($_POST['date1']))?> To <?=date('m/d/Y',strtotime($_POST['date2']))?>
+
 	</center>
 </p>
+
+<table class="style4">
+        <tr>
+                <td><b>Date Printed:</b></td>
+                <td><?=date('m/d/Y h:i A')?></td>
+        </tr><tr>
+                <td><b>Printed By:</b></td>
+                <td><?=$_GET['uname']?></td>
+        </tr>
+</table>
+
 
 <table class="style4">
 

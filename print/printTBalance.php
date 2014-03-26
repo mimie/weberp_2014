@@ -50,10 +50,21 @@ if(isset($_GET['export']) &&($_GET['export']==1)){
 <p><center>
 		Institute of International Auditors Phils.<br>
 		GL Account Summary Reports<br>
-		As of:
+		<?=$_POST['asOf']?>
 </center>
 </p>
 
+
+<table class="style4">
+        <tr>
+                <td><b>Date Printed:</b></td>
+                <td><?=date('m/d/Y h:i A')?></td>
+        </tr><tr>
+                <td><b>Printed by:</b></td>
+                <td><?=$_GET['uname']?></td>
+        </tr>
+</table>
+<br>
 
 <table class="style4">
 <tr>
@@ -81,11 +92,11 @@ if(isset($_GET['export']) &&($_GET['export']==1)){
 <tr>
 	<td>&nbsp;</td>
 	<td>Total</td>
-	<td class="number"><?=number_format($_GET['totalbeg'],2)?></td>
-	<td class="number"><?=number_format($_GET['totaldb'],2)?></td>
-	<td class="number"><?=number_format($_GET['totalcr'],2)?></td>
-	<td class="number"><?=number_format($_GET['totalnet'],2)?></td>
-	<td class="number"><?=number_format($_GET['totalend'],2)?></td>
+	<td class="number"><?=number_format($_POST['totalbeg'],2)?></td>
+	<td class="number"><?=number_format($_POST['totaldb'],2)?></td>
+	<td class="number"><?=number_format($_POST['totalcr'],2)?></td>
+	<td class="number"><?=number_format($_POST['totalnet'],2)?></td>
+	<td class="number"><?=number_format($_POST['totalend'],2)?></td>
 </tr>
 
 </table>

@@ -92,12 +92,10 @@ if (!isset($_POST['Show'])) {
 
 		$LastJournal = 0;
 		$totaldb=0;
-		$totalcr=0;
 		$list_glacode=array();
 		$list_accname=array();
 		$list_name=array();
 		$list_db=array();
-		$list_cr=array();
 		$list_custId=array();
 		$list_jv=array();
 		$list_event=array();
@@ -166,19 +164,15 @@ if (!isset($_POST['Show'])) {
 	echo '<br /><div class="centre"><input type="submit" name="Return" value="' . _('Select Another Date'). '" /></div>';
 	echo '</form>';
 	//echo 'Here '.$_POST['NumberFrom'];
- $myUrl=$rootpath .'/print/printBillingJournal.php?';
+ $myUrl=$rootpath .'/print/printBillingRegister.php?uname='.$Uname;
 	echo '<form method="POST" action="'.$myUrl.'" target="blank">';
-				echo '<input type="hidden" name="glacode" value="'.implode(",",$list_glacode).'"/>';
-  			echo '<input type="hidden" name="accname" value="'.implode("+",$list_accname).'"/>';
 				echo '<input type="hidden" name="name" value="'.implode("+",$list_name).'"/>';
 				echo '<input type="hidden" name="db" value="'.implode("*",$list_db).'"/>';
-				echo '<input type="hidden" name="cr" value="'.implode("*",$list_cr).'"/>';
 				echo '<input type="hidden" name="custId" value="'.implode("+",$list_custId).'"/>';
 				echo '<input type="hidden" name="jv" value="'.implode("+",$list_jv).'"/>';
 				echo '<input type="hidden" name="dates" value="'.implode("+",$list_date).'"/>';
 				echo '<input type="hidden" name="event" value="'.implode("+",$list_event).'"/>';
 				echo '<input type="hidden" name="totaldb" value="'.$totaldb.'"/>';
-				echo '<input type="hidden" name="totalcr" value="'.$totalcr.'">';
 				echo '<input type="hidden" name="date1" value="'. FormatDateForSQL($_POST['FromTransDate']).'">';
 				echo '<input type="hidden" name="date2" value="'. FormatDateForSQL($_POST['ToTransDate']).'">';
 				echo '<input type="hidden" name="num1" value="'. $_POST['NumberFrom'].'">';
@@ -189,22 +183,21 @@ if (!isset($_POST['Show'])) {
 
 echo '<form method="POST" action="'.$myUrl.'&amp;export=1" target="blank">';
         
-	     			echo '<input type="hidden" name="glacode" value="'.implode(",",$list_glacode).'"/>';
-                        	echo '<input type="hidden" name="accname" value="'.implode("+",$list_accname).'"/>';
-                                echo '<input type="hidden" name="name" value="'.implode("+",$list_name).'"/>';
+				echo '<input type="hidden" name="name" value="'.implode("+",$list_name).'"/>';
                                 echo '<input type="hidden" name="db" value="'.implode("*",$list_db).'"/>';
-                                echo '<input type="hidden" name="cr" value="'.implode("*",$list_cr).'"/>';
                                 echo '<input type="hidden" name="custId" value="'.implode("+",$list_custId).'"/>';
                                 echo '<input type="hidden" name="jv" value="'.implode("+",$list_jv).'"/>';
                                 echo '<input type="hidden" name="dates" value="'.implode("+",$list_date).'"/>';
+                                echo '<input type="hidden" name="event" value="'.implode("+",$list_event).'"/>';
                                 echo '<input type="hidden" name="totaldb" value="'.$totaldb.'"/>';
-                                echo '<input type="hidden" name="totalcr" value="'.$totalcr.'">';
                                 echo '<input type="hidden" name="date1" value="'. FormatDateForSQL($_POST['FromTransDate']).'">';
                                 echo '<input type="hidden" name="date2" value="'. FormatDateForSQL($_POST['ToTransDate']).'">';
                                 echo '<input type="hidden" name="num1" value="'. $_POST['NumberFrom'].'">';
                                 echo '<input type="hidden" name="num2" value="'. $_POST['NumberTo'].'">';
-				echo '<button name="Print" onclick="window.open("'.$myUrl.'")">Export to Excel';
 
+
+
+echo '<button name="Print" onclick="window.open("'.$myUrl.'")">Export to Excel';
 echo '</form>';
 }
 include('includes/footer.inc');

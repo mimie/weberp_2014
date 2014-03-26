@@ -1,14 +1,11 @@
 <?php
-$array_glacode=explode(',',$_POST['glacode']);
-$array_accname=explode('+',$_POST['accname']);
 $array_name=explode('+',$_POST['name']);
 $array_db=explode('*',$_POST['db']);
-$array_cr=explode('*',$_POST['cr']);
 $array_custId=explode('+',$_POST['custId']);
 $array_event=explode('+',$_POST['event']);
 $array_jv=explode('+',$_POST['jv']);
 $array_date=explode('+',$_POST['dates']);
-$myCtr=count($array_glacode);
+$myCtr=count($array_custId);
 #echo 'Here '.$_POST['num1'];
 #die(print_r($_POST));
 
@@ -75,11 +72,12 @@ Billing Journal
 <p>
 	<center>
 	Institute of International Auditors Phils.<br>
-	BILLING JOURNAL SUMMARY<br>
+	BILLING REGISTER<br>
         From <?=date('m/d/Y',strtotime($_POST['date1']))?> To <?=date('m/d/Y',strtotime($_POST['date2']))?>
 
 	</center>
 </p>
+
 
 <table class="style4">
         <tr>
@@ -99,10 +97,7 @@ Billing Journal
 	<th><u>BS No.</u></th>
 	<th><u>Customer ID</u></th>
 	<th><u>Name</u></th>
-	<th><u>GL ID</u></th>
-	<th><u>Account Description</u></th>
-	<th><u>Debit</u></th>
-	<th><u>Credit</u></th>
+	<th><u>Gross Amount</u></th>
 	<th><u>Event</u></th>
 
 </tr>
@@ -116,10 +111,7 @@ Billing Journal
 			<td><?=$array_jv[$x]?></td>
 			<td><?=$array_custId[$x]?></td>
 			<td><?=$array_name[$x]?></td>
-			<td><?=$array_glacode[$x]?></td>
-			<td><?=$array_accname[$x]?></td>
 			<td class="number"><?=number_format($array_db[$x],2)?></td>
-			<td class="number"><?=number_format($array_cr[$x],2)?></td>
 			<td class="number"><?=$array_event[$x]?></td>
 
 	</tr>
@@ -129,69 +121,10 @@ Billing Journal
                 <td colspan=9></td>
 </tr>
 <tr>
-            <td colspan="5"></td>
+            <td colspan="3"></td>
             <td colspan="1"><b>Total</b></td>
-            <td class="number"><b><?=number_format($_POST['totaldb'],2)?></b></td>
-            <td class="number"><b><?=number_format($_POST['totalcr'],2)?></b></td>
+            <td class="number"><u><b><?=number_format($_POST['totaldb'],2)?></b></u></td>
           </tr>
-
-
-<tr>
-		<td colspan=8><b><center>=======GL Summary=======</center></b></td>
-</tr>
-
-
-<tr>
-        <td></td>
-        <td></td>
-        <td><b><u>GL Code</u></b></td>
-        <td><b><u>Account Name</u></b></td>
-        <td></td>
-        <td class="number"><b><u>Debit</u></b></td>
-        <td class="number"><b><u>Credit</u></b></td>
-        <td class="number"><b><u>Net Balance</u></b></td>
-        <td></td>
-
-</tr>
-<?php
-//echo 'Here'.$sql; 
-$result=mysql_query($sql);
-$totalpos=0;
-$totalneg=0;
-$totalnet=0;
-while($row=mysql_fetch_array($result)){
-$myNet=$row['totalpositive']+$row['totalnegative'];
-?>
-<tr>
-	<td></td>
-	<td></td>
-	<td><?=$row['glacode']?></td>
-	<td><?=$row['accountname']?></td>
-	<td></td>
-	<td class="number"><?=number_format($row['totalpositive'],2)?></td>
-	<td class="number"><?=number_format($row['totalnegative']*-1,2)?></td>
-	<td class="number"><?=number_format($myNet,2)?></td>
-	<td></td>
-
-</tr>
-<?php
-$totalpos=$totalpos+$row['totalpositive'];
-$totalneg=$totalneg+($row['totalnegative']*-1);
-$totalnet=$totalnet+$myNet;
-}
-?>
-<tr>
-                <td colspan=8></td>
-</tr>
-<tr>
-            <td colspan="4"></td>
-            <td colspan="1"><b>Total</b></td>
-            <td class="number"><b><?=number_format($totalpos,2)?></b></td>
-            <td class="number"><b><?=number_format($totalneg,2)?></b></td>
-	    <td class="number"><b><?=number_format($totalnet,2)?></b></td>
-          </tr>
-
-
 
 </table>
 </body>

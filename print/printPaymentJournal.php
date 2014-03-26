@@ -76,7 +76,9 @@ td.number {
 <p>
 	<center>
 	Institute of International Auditors Phils.<br>
-	CASH PAYMENT JOURNAL SUMMARY
+	CASH PAYMENT JOURNAL SUMMARY<br>
+        From <?=date('m/d/Y',strtotime($_POST['date1']))?> To <?=date('m/d/Y',strtotime($_POST['date2']))?>
+
 	</center>
 </p>
 

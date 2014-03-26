@@ -197,7 +197,7 @@ if (!isset($_POST['Show'])) {
 	echo '<br /><div class="centre"><input type="submit" name="Return" value="' . _('Select Another Date'). '" /></div>';
 	echo '</form>';
 	
- $myUrl=$rootpath .'/print/printReceiptJournal.php?';
+ $myUrl=$rootpath .'/print/printReceiptJournal.php?uname='.$Uname;
 	echo '<form method="POST" action="'.$myUrl.'" target="blank">';
 				echo '<input type="hidden" name="glacode" value="'.implode(",",$list_glacode).'"/>';
   				echo '<input type="hidden" name="accname" value="'.implode("+",$list_accname).'"/>';

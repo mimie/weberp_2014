@@ -42,6 +42,8 @@ $sql="SELECT gltrans.typeno,
                                 gltrans.checkdate,
                                 gltrans.voucherno,
                                 suppliers.suppname,
+				suppliers.address1,
+				suppliers.taxref,
                                 tags.tagdescription,
                                 gltrans.jobref
                         FROM gltrans
@@ -67,6 +69,8 @@ $checkdate='';
 $transdate='';
 $checkno='';
 $totalamt=0;
+$address='';
+$tin='';
 $list_amt=array();
 $list_glacode=array();
 $list_accname=array();
@@ -87,9 +91,9 @@ $cr=0;
 	$nar='';
         $narLen=strlen($row['narrative']);
 
-        /*if($narLen>25){
-                $nar=substr($row['narrative'],0,25).'...';
-        }else*/
+        if($narLen>50){
+                $nar=substr($row['narrative'],0,50).'...';
+        }else
 		$nar=$row['narrative'];
 
 	array_push($list_narrative,$nar);
@@ -118,6 +122,8 @@ $cr=0;
 	array_push($list_cr,$cr);
 	
 	$suppname=$row['suppname'];
+	$address=$row['address1'];
+	$tin=$row['taxref'];
 	$checkdate=$row['checkdate'];
 	$transdate=$row['trandate'];
 	$checkno=$row['chequeno'];
@@ -142,7 +148,7 @@ if($list_amt[0]<0){
     <td><span class="style4">Unit 702 Corporate Center 139 Valero St., Salcedo Village, Makati City 1227</span></td>
   </tr>
   <tr>
-    <td><span class="style6">TIN No. 001-772-403-000  :  ' (+632) 940-9551 / 940-9552   :  : Fax (+632) 325-0414 </span></td>
+    <td><span class="style6">TIN No. 001-772-403-000 : (+632) 940-9551 / 940-9552 : Fax (+632) 325-0414 </span></td>
   </tr>
 </table>
 <p align="center" class="style17">CHECK\PAYMENT VOUCHER</p>
@@ -155,13 +161,13 @@ if($list_amt[0]<0){
   </tr>
   <tr>
     <td><span class="style16"></span></td>
-    <td><span class="style4"><?=$_GET['suppAdd']?></span></td>
+    <td><span class="style4"><?=$address?></span></td>
     <td><div align="right" class="style4"><strong>Voucher No.:</strong></div></td>
     <td>CV-<?=$_GET['voucherNum']?></td>
   </tr>
   <tr>
     <td>&nbsp;</td>
-    <td>&nbsp;</td>
+    <td><?=$tin?></td>
     <td><div align="right" class="style4"><strong>Check No.:</strong></div></td>
     <td><?=$checkno?></td>
   </tr>
@@ -204,7 +210,7 @@ if($list_amt[0]<0){
 	$myTotal=number_format($totalamt,2);
 	$myWord=number_to_words($totalamt).' and '.centavos($totalamt);
     ?>
-    <td width="516" height="38"><span class="style6">AMOUNT IN WORDS:</span><?=$myWord?> </td>
+    <td width="516" height="38"><span class="style6">AMOUNT IN WORDS : </span><?=$myWord?> </td>
     <td width="117"><p class="style6">NET AMOUNT PAID (in figures)</p>    </td>
     <td width="190" class="number"><?=$myTotal?></td>
   </tr>
@@ -265,8 +271,8 @@ include('printCVJ.php');
 else{
 ?><table width="849" border="1">
   <tr>
-    <td width="240"><span class="style13">ACCT. CODE</span></td>
-    <td width="310"><span class="style13">ACCOUNT TITLE</span></td>
+    <td width="140"><span class="style13">ACCT. CODE</span></td>
+    <td width="400"><span class="style13">ACCOUNT TITLE</span></td>
     <td width="120"><span class="style13">DEBIT</span></td>
     <td width="151"><span class="style13">CREDIT</span></td>
   </tr>
@@ -276,8 +282,8 @@ else{
     <td><table width="838" border="0">
       <?php for($x=0;$x<$myCtr;$x++){ ?>
       <tr>
-        <td width="239"><?=$list_glacode[$x]?></td>
-        <td width="311"><?=$list_accname[$x]?></td>
+        <td width="139"><?=$list_glacode[$x]?></td>
+        <td width="399"><?=$list_accname[$x]?></td>
         <td width="123" class="number"><?=number_format($list_db[$x],2)?></td>
         <td width="147" class="number"><?=number_format($list_cr[$x],2)?></td>
       </tr>
