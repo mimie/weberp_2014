@@ -194,6 +194,7 @@ $x=0;
 while($row=mysql_fetch_array($result)){
 $cash=0;
 $ccheck=0;
+$direct=0;
 if($row['jobref']=='Cash'){
 	$cash=$row['totalamount'];
 	$totalcash=$totalcash+$cash;

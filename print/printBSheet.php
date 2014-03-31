@@ -74,6 +74,22 @@ $totalamt=0;
 $total_lastyear=0;
 $total_lastmonth=0;
 $result=mysql_query($sql);
+
+//Current Asset and Equity Counter
+$curasst=0;
+$cureqty=0;
+
+//Last Month Assets and Equity
+$lastasst=0;
+$lasteqty=0;
+
+//Last Year Assets and Equity
+$lyasst=0;
+$lyeqty=0;
+
+$assetKey=0;
+$startKey=0;
+
 while($row=mysql_fetch_array($result)){
 
 	$cur=$row['currentBalance']+$row['currentBeg'];
@@ -98,6 +114,34 @@ if(($tempgroup!=$row['groupname'])&&($tempgroup!='')){
 	$tempgroup=$row['groupname'];
 }
 
+$grpKey=substr($row['glacode'],0,2);
+if($assetKey==0 && $startKey!=0 && $grpKey!='1-'){
+	
+	//echo '<tr><td></td></tr>';
+        echo'<tr style="background-color:#67C3F5">
+                <td><b>TOTAL ASSETS</b></td>
+                <td></td>
+                <td class="number">'.reverse_sign($lyasst).'</td>
+                <td class="number">'.reverse_sign($lastasst).'</td>
+                <td class="number">'.reverse_sign($curasst).'</td>
+        </tr>';
+        echo '<tr><td></td></tr>';
+	echo '<tr><td></td></tr>';
+	$assetKey=1;
+
+}
+
+if($grpKey=='1-'){
+	$curasst=$curasst+$cur;
+	$lastasst=$lastasst+$las;
+	$lyasst=$lyasst+$row['lastYear'];
+
+	
+}else if($grpKey=='2-' || $grpKey=='3-'){
+	$cureqty=$cureqty+$cur;
+	$lasteqty=$lasteqty+$las;
+	$lyeqty=$lyeqty+$row['lastYear'];
+}
 
 ?>
 <tr>
@@ -111,7 +155,32 @@ if(($tempgroup!=$row['groupname'])&&($tempgroup!='')){
 	$total_lastyear=$total_lastyear+$row['lastYear'];
 	$total_lastmonth=$total_lastmonth+$las;
 	$totalamt=$totalamt+$cur;
-} ?>
+	$startKey=1;
+} 
+echo '<tr><td></td></tr>';
+        echo'<tr style="background-color:#ffff99">
+                <td><b>'.$tempgroup.'</b></td>
+                <td></td>
+                <td class="number">'.reverse_sign($total_lastyear).'</td>
+                <td class="number">'.reverse_sign($total_lastmonth).'</td>
+                <td class="number">'.reverse_sign($totalamt).'</td>
+        </tr>';
+        echo '<tr><td></td></tr>';
+
+echo '<tr><td></td></tr>';
+        echo'<tr style="background-color:#67C3F5">
+                <td><b>TOTAL LIABILITIES & FUND BALANCE</b></td>
+                <td></td>
+                <td class="number">'.reverse_sign($lyeqty).'</td>
+                <td class="number">'.reverse_sign($lasteqty).'</td>
+                <td class="number">'.reverse_sign($cureqty).'</td>
+        </tr>';
+        echo '<tr><td></td></tr>';
+
+
+
+
+?>
 </table>
 
 

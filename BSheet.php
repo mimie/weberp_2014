@@ -133,7 +133,41 @@ if (!isset($_POST['Show'])) {
 		$list_cr=array();
 		$list_beg=array();
 		$list_end=array();
+		//Current Asset and Equity Counter
+		$curasst=0;
+		$cureqty=0;
+
+		//Last Month Assets and Equity
+		$lastasst=0;
+		$lasteqty=0;
+
+		//Last Year Assets and Equity
+		$lyasst=0;
+		$lyeqty=0;
+
+		$assetKey=0;
+		$startKey=0;
+
 		while ($myrow = DB_fetch_array($result)){
+		
+		 $cur=$myrow['currentBalance']+$myrow['currentBeg'];
+                        $las=$myrow['lastMonth']+$myrow['lastBeg'];
+
+                        $grpKey=substr($myrow['glacode'],0,2);
+
+                        if($grpKey=='1-'){
+                                $curasst=$curasst+$cur;
+                                $lastasst=$lastasst+$las;
+                                $lyasst=$lyasst+$row['lastYear'];
+
+                        }else if($grpKey=='2-' || $grpKey=='3-'){
+                                $cureqty=$cureqty+$cur;
+                                $lasteqty=$lasteqty+$las;
+                                $lyeqty=$lyeqty+$row['lastYear'];
+                        }
+
+
+
 		if($myrow['group_']!=$LastGroup){
 			 if($head!=0){
 			 echo '<tr class="EvenTableRows">	
@@ -144,6 +178,22 @@ if (!isset($_POST['Show'])) {
 					<td class="number">'.reverse_sign($subtotally).'</td>
 				</tr>';
 			 }
+
+			 if($assetKey==0 && $startKey!=0 && $grpKey!='1-'){
+
+                        //echo '<tr><td></td></tr>';
+                                echo'<tr style="background-color:#EDF4F7">
+                                <td></td>
+				<td><b>TOTAL ASSETS</b></td>
+                                <td class="number">'.reverse_sign($curasst).'</td>
+                                <td class="number">'.reverse_sign($lastasst).'</td>
+                                <td class="number">'.reverse_sign($lyasst).'</td>
+                                </tr>';
+                                echo '<tr><td></td></tr>';
+                                echo '<tr><td></td></tr>';
+                                $assetKey=1;
+
+                        }
 			 echo '<tr><td colspan=2> <h2>'.$myrow['group_'].'</h2></td></tr>';
                 	 echo '<tr>
                                 <th>'._('Account Code').'</th>
@@ -159,8 +209,6 @@ if (!isset($_POST['Show'])) {
 
 		}
 
-			$cur=$myrow['currentBalance']+$myrow['currentBeg'];
-			$las=$myrow['lastMonth']+$myrow['lastBeg'];
 
 			echo '<tr>
 			 	<td>'.$myrow['glacode'].'</td>
@@ -178,14 +226,6 @@ if (!isset($_POST['Show'])) {
                         $totally+=$myrow['lastYear'];
 
 			
-			array_push($list_glacode,$myrow['glacode']);
-			array_push($list_accname,$myrow['accountname']);
-			array_push($list_db,$dbt);			
-			array_push($list_cr,$cr);
-			array_push($list_net,$net);
-			array_push($list_beg,$beg);
-			array_push($list_end,$end);
-	
 			$totaldb=$totaldb+$myrow['totalpositive'];
 			$totalcr=$totalcr+$cr;
 			$totalnet+=$net;
@@ -193,6 +233,7 @@ if (!isset($_POST['Show'])) {
 			$totalend+=$end;
 			$LastGroup=$myrow['group_'];
 			$head=1;
+			$startKey=1;
 
 		}
 		}
@@ -203,13 +244,23 @@ if (!isset($_POST['Show'])) {
                                         <td class="number">'.reverse_sign($subtotallp).'</td>
                                         <td class="number">'.reverse_sign($subtotally).'</td>
                                 </tr>';
+			 echo '<tr><td></td></tr>';
+        		 echo'<tr style="background-color:#EDF4F7">
+			 <td></td>
+                	 <td><b>TOTAL LIABILITIES & FUND BALANCE</b></td>
+                 	 <td class="number">'.reverse_sign($cureqty).'</td>
+                	 <td class="number">'.reverse_sign($lasteqty).'</td>
+                	<td class="number">'.reverse_sign($lyeqty).'</td>
+        		</tr>';
+        		echo '<tr><td></td></tr>';
+
 
 		
 		$totalnet=$totaldb-$totalcr;
 		$totalend=$totalbeg+$totalnet;	
 		echo '<tr>
 						<td colspan="1"></td>
-						<td colspan="1"><b>Total</b></td>
+						<td colspan="1"><b>TOTAL</b></td>
 						<td class="number">'.reverse_sign($totalcp).'</td>
 						<td class="number">'.reverse_sign($totallp).'</td>
 						<td class="number">'.reverse_sign($totally).'</td>

@@ -109,7 +109,7 @@ $cr=0;
 	$narLen=strlen($row['narrative']);
 	
 	//if($narLen>50){
-	//	$nar=substr($row['narrative'],0,50).'...';
+		//$nar=substr($row['narrative'],0,50).'...';
 	//}else
 		$nar=$row['narrative'];
 
@@ -171,13 +171,14 @@ $header='<p class="style1">Institute of Internal Auditors Philippines, Inc.</p>
 <table width="860" border="0">
   <tr>
     <td width="59"><span class="style7">Particulars:</span></td>
-    <td width="380" rowspan="2">'.$ref.'</td>
-     <td>&nbsp;</td>
+    <td width="380" colspan="2">'.$ref.'</td>
+     
     <td width="100"><div align="right"><span class="style7">Date:</span></div></td>
     <td width="145"><span class="style7">'.date('m/d/Y',strtotime($transdate)).'</span></td>
   </tr>
   <tr>
     <td>&nbsp;</td>
+     <td>&nbsp;</td>
      <td>&nbsp;</td>
     <td><div align="right"><span class="style7">Number: </span></div></td>
     <td><span class="style18">'.$_GET['vouchNum'].'</span></td>

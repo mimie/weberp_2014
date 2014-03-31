@@ -118,7 +118,7 @@ if (!isset($_POST['Show'])) {
 					<td class="number">'.$myrow['trandate'].'</td>
 					<td>'.$myrow['voucherno'] . '</td>';
 					array_push($list_jv,$myrow['voucherno']);
-					array_push($list_date, ConvertSQLDate($myrow['trandate']) );
+					array_push($list_date, date('m/d/y',strtotime($myrow['trandate'])) );
 			} else {
 				echo '<tr><td colspan="2"></td>';
 				array_push($list_jv,'');
