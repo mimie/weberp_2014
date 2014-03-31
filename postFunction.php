@@ -7,7 +7,9 @@
 <?php
 
 
-function myPost($eventType,$eventName,$amount,$custName,$custID,$billingNo,$billingDate){
+function myPost($eventType,$eventName,$amount,$custName,$custID,$billingNo,$billingDate,$postDate){
+
+$postDate = $postDate == NULL ? date("Y-m-d") : date("Y-m-d",strtotime($postDate));
 $db=mysql_connect('10.110.215.92', 'iiap', 'mysqladmin');
 //$db = mysql_connect('localhost', 'root', 'mysqladmin');
 //$db = dbConnect();
@@ -40,14 +42,14 @@ $b=0;
 while($row=mysql_fetch_array($result)){
 	//echo $row['id'].'-'.$row['glCode'].'-';
 	if($row['debitcredit']==0){
-		$sql=myInsert($newNo,$row['glCode'],$narrative,$amount,$custName,$custID,$billingNo,$billingDate,$eventType,$eventName);
+		$sql=myInsert($newNo,$row['glCode'],$narrative,$amount,$custName,$custID,$billingNo,$billingDate,$eventType,$eventName,$postDate);
 		//echo $sql;
 		mysql_query($sql);
 		//echo $amount;
 	}
 	elseif($row['withvat']==0){
 		$amount=$amount*(-1);
-		$sql=myInsert($newNo,$row['glCode'],$narrative,$amount,$custName,$custID,$billingNo,$billingDate,$eventType,$eventName);
+		$sql=myInsert($newNo,$row['glCode'],$narrative,$amount,$custName,$custID,$billingNo,$billingDate,$eventType,$eventName,$postDate);
     		//echo $sql;
 		mysql_query($sql);
 		//echo $amount;
@@ -58,14 +60,14 @@ while($row=mysql_fetch_array($result)){
 		if($row['vatact']==0){
 			$newAmount=$amount-$vat;
 			$newAmount=$newAmount*(-1);
-			$sql=myInsert($newNo,$row['glCode'],$narrative,$newAmount,$custName,$custID,$billingNo,$billingDate,$eventType,$eventName);
+			$sql=myInsert($newNo,$row['glCode'],$narrative,$newAmount,$custName,$custID,$billingNo,$billingDate,$eventType,$eventName,$postDate);
     	//echo $sql;
 			mysql_query($sql);
 			$a= $amount-$vat;
 		}
 		else{
 			$newVat=$vat*(-1);
-			$sql=myInsert($newNo,$row['glCode'],$narrative,$newVat,$custName,$custID,$billingNo,$billingDate,$eventType,$eventName);
+			$sql=myInsert($newNo,$row['glCode'],$narrative,$newVat,$custName,$custID,$billingNo,$billingDate,$eventType,$eventName,$postDate);
 	    //echo $sql;
 			mysql_query($sql);
 			$b=$vat;
@@ -83,7 +85,7 @@ $c=$a+$b;
 }
 
 
-function myInsert($typeno,$act,$narrative,$amount,$custName,$custID,$billingNo,$billingDate,$eventType,$eventName){
+function myInsert($typeno,$act,$narrative,$amount,$custName,$custID,$billingNo,$billingDate,$eventType,$eventName,$postDate){
 
 $jobRef = $eventType."-".$eventName;
 $jobRef = mysql_real_escape_string($jobRef);
@@ -101,7 +103,7 @@ $insql="INSERT INTO gltrans (type,
 		    jobref)
 				VALUES ('5','".
 								$typeno."',
-								'".date('Y-m-d')."',
+								'".$postDate."',
 								'12',
 								'".$act."',
 								'".$narrative."',
